@@ -11,6 +11,7 @@ import { LobbyScreen } from './LobbyScreen';
 import { Logo } from './Logo';
 import { NicknameForm } from './NicknameForm';
 import { StatusScreen } from './StatusScreen';
+import { VotingScreen } from './VotingScreen';
 
 export type PhaseProps = {
   roomId: string;
@@ -147,6 +148,8 @@ function renderPhase(props: PhaseProps) {
   switch (props.snapshot.phase) {
     case 'lobby':
       return <LobbyScreen {...props} />;
+    case 'voting':
+      return <VotingScreen key={`voting-${props.me.roundNumber}`} {...props} />;
     default:
       return <StatusScreen kind="loading" />;
   }

@@ -7,9 +7,14 @@ export const HINT_DISTANCE = 40;
 type Vec = { x: number; y: number };
 
 function direction(offset: Vec, velocity: Vec, distance: number, speed: number): VoteValue | null {
-  const upward = -offset.y > Math.abs(offset.x) || -velocity.y > Math.abs(velocity.x);
-  if (upward && (-offset.y > distance || -velocity.y > speed)) return 'super';
-  if (!upward && (Math.abs(offset.x) > distance || Math.abs(velocity.x) > speed)) {
+  // Upward only if the signal crosses its threshold AND dominates its horizontal component
+  const upwardViaOffset = -offset.y > distance && -offset.y > Math.abs(offset.x);
+  const upwardViaVelocity = -velocity.y > speed && -velocity.y > Math.abs(velocity.x);
+
+  if (upwardViaOffset || upwardViaVelocity) return 'super';
+
+  // Otherwise check horizontal
+  if (Math.abs(offset.x) > distance || Math.abs(velocity.x) > speed) {
     const sign = offset.x !== 0 ? offset.x : velocity.x;
     return sign > 0 ? 'yes' : 'no';
   }

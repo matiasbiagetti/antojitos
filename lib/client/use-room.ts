@@ -17,6 +17,7 @@ export function useRoom(roomId: string): RoomState {
     const supabase = getBrowserSupabase();
     let currentVersion = -1;
     let cancelled = false;
+    let retryTimeout: NodeJS.Timeout | null = null;
 
     const apply = (snapshot: PublicSnapshot) => {
       if (cancelled || snapshot.version <= currentVersion) return;
@@ -25,10 +26,28 @@ export function useRoom(roomId: string): RoomState {
     };
 
     const load = async () => {
-      const { data } = await supabase.from('room_public').select('snapshot').eq('room_id', roomId).maybeSingle();
+      const { data, error } = await supabase.from('room_public').select('snapshot').eq('room_id', roomId).maybeSingle();
       if (cancelled) return;
-      if (data?.snapshot) apply(data.snapshot as PublicSnapshot);
-      else setState((s) => (s.status === 'ready' ? s : { status: 'missing' }));
+
+      if (error) {
+        // On error, keep current state and retry after 2s
+        setState((s) => (s.status === 'loading' ? s : s));
+        if (!cancelled) {
+          retryTimeout = setTimeout(() => {
+            if (!cancelled) void load();
+          }, 2000);
+        }
+        return;
+      }
+
+      if (data?.snapshot) {
+        apply(data.snapshot as PublicSnapshot);
+        // Clear reconnecting flag even if version didn't change
+        setState((s) => (s.status === 'ready' ? { ...s, reconnecting: false } : s));
+      } else {
+        // Only set missing when there's no error and no row
+        setState((s) => (s.status === 'ready' ? s : { status: 'missing' }));
+      }
     };
 
     const channel = supabase
@@ -53,6 +72,7 @@ export function useRoom(roomId: string): RoomState {
     void load();
     return () => {
       cancelled = true;
+      if (retryTimeout) clearTimeout(retryTimeout);
       void supabase.removeChannel(channel);
     };
   }, [roomId]);

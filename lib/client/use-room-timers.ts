@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { PublicSnapshot } from '@/lib/shared/api-types';
 import { closeRoom, heartbeat } from './api';
-import { msUntil } from './clock';
+import { msUntil, onClockChange } from './clock';
 
 const HEARTBEAT_MS = 10_000;
 const CLOSE_GRACE_MS = 250;
@@ -20,6 +20,8 @@ export function dueAt(snapshot: PublicSnapshot): string | null {
 }
 
 export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, token: string | null): void {
+  const [clockVersion, setClockVersion] = useState(0);
+
   useEffect(() => {
     if (!token) return;
     const beat = () => void heartbeat(roomId, token).catch(() => undefined);
@@ -27,6 +29,15 @@ export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, t
     const id = setInterval(beat, HEARTBEAT_MS);
     return () => clearInterval(id);
   }, [roomId, token]);
+
+  useEffect(() => {
+    const unsubscribe = onClockChange(() => {
+      setClockVersion((v) => v + 1);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const target = snapshot ? dueAt(snapshot) : null;
   useEffect(() => {
@@ -39,5 +50,5 @@ export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, t
       clearTimeout(first);
       clearTimeout(retry);
     };
-  }, [roomId, target]);
+  }, [roomId, target, clockVersion]);
 }

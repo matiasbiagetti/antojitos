@@ -12,6 +12,10 @@ describe('classifySwipe', () => {
     [{ x: 0, y: -30 }, { x: 0, y: -900 }, 'super'],
     [{ x: 50, y: 40 }, still, null], // no alcanza
     [{ x: 0, y: 150 }, still, null], // hacia abajo no hace nada
+    [{ x: 30, y: -40 }, { x: 900, y: 0 }, 'yes'], // small upward drag doesn't block horizontal flick
+    [{ x: -30, y: -40 }, { x: -900, y: 0 }, 'no'], // small upward drag with left flick
+    [{ x: 150, y: -160 }, still, 'super'], // upward dominates
+    [{ x: 160, y: -150 }, still, 'yes'], // horizontal dominates over upward attempt
   ] as const)('offset %j velocity %j -> %s', (offset, velocity, expected) => {
     expect(classifySwipe(offset, velocity)).toBe(expected);
   });

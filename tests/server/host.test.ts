@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { getMe, heartbeat, joinRoom, replay } from '@/lib/server/commands/rooms';
 import { startRound } from '@/lib/server/commands/round';
+import { sql } from '@/lib/server/db';
 import { at, countEvents, readSnapshot, resetDb, setupRoom, voteAll } from './helpers';
 
 describe('host transfer', () => {
@@ -33,6 +34,28 @@ describe('host transfer', () => {
     await startRound(roomId, players[0].token, at(1_000));
     await heartbeat(roomId, players[1].token, at(45_000));
     expect((await readSnapshot(roomId)).hostParticipantId).toBe(players[0].participantId);
+  });
+
+  it('snapshot version unchanged when heartbeat does not change host', async () => {
+    const { roomId, players } = await setupRoom(2);
+    const [row1] = await sql<{ v: number }[]>`select version as v from room_public where room_id = ${roomId}`;
+    const versionBefore = row1.v;
+    await heartbeat(roomId, players[0].token, at(10_000));
+    const [row2] = await sql<{ v: number }[]>`select version as v from room_public where room_id = ${roomId}`;
+    const versionAfter = row2.v;
+    expect(versionAfter).toBe(versionBefore);
+  });
+
+  it('snapshot version bumps when heartbeat transfers host', async () => {
+    const { roomId, players } = await setupRoom(3);
+    const [row1] = await sql<{ v: number }[]>`select version as v from room_public where room_id = ${roomId}`;
+    const versionBefore = row1.v;
+    await heartbeat(roomId, players[2].token, at(20_000));
+    await heartbeat(roomId, players[2].token, at(31_000));
+    const [row2] = await sql<{ v: number }[]>`select version as v from room_public where room_id = ${roomId}`;
+    const versionAfter = row2.v;
+    expect(versionAfter).toBeGreaterThan(versionBefore);
+    expect((await readSnapshot(roomId)).hostParticipantId).toBe(players[2].participantId);
   });
 });
 

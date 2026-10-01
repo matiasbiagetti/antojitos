@@ -147,7 +147,6 @@ export async function heartbeat(
   token: string | null,
   now: Date,
 ): Promise<{ hostParticipantId: string | null }> {
-  let hostChanged = false;
   const hostParticipantId = await withRoomTx(
     roomId,
     now,
@@ -164,12 +163,11 @@ export async function heartbeat(
       const candidate = participants.find((p) => isActive(p.lastSeenAt)); // ya vienen ordenados por joined_at
       if (!candidate || candidate.id === room.hostParticipantId) return room.hostParticipantId;
       await setRoomHost(tx, roomId, candidate.id);
-      hostChanged = true;
+      await writePublicSnapshot(tx, roomId);
       return candidate.id;
     },
     { snapshot: false },
   );
-  if (hostChanged) await transaction((tx) => writePublicSnapshot(tx, roomId));
   return { hostParticipantId };
 }
 

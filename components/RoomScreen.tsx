@@ -10,6 +10,9 @@ import type { MeResponse, PublicSnapshot } from '@/lib/shared/api-types';
 import { LobbyScreen } from './LobbyScreen';
 import { Logo } from './Logo';
 import { NicknameForm } from './NicknameForm';
+import { ResultScreen } from './ResultScreen';
+import { RouletteScreen } from './RouletteScreen';
+import { RunoffScreen } from './RunoffScreen';
 import { StatusScreen } from './StatusScreen';
 import { VotingScreen } from './VotingScreen';
 
@@ -150,7 +153,11 @@ function renderPhase(props: PhaseProps) {
       return <LobbyScreen {...props} />;
     case 'voting':
       return <VotingScreen key={`voting-${props.me.roundNumber}`} {...props} />;
-    default:
-      return <StatusScreen kind="loading" />;
+    case 'runoff':
+      return <RunoffScreen key={`runoff-${props.me.roundNumber}`} {...props} />;
+    case 'roulette':
+      return <RouletteScreen key={`roulette-${props.me.roundNumber}`} {...props} />;
+    case 'result':
+      return <ResultScreen {...props} />;
   }
 }

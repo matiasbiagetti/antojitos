@@ -17,6 +17,8 @@ import {
   nicknameTaken,
   setRoomConfig,
   setRoomHost,
+  setRoomPhase,
+  touchParticipant,
 } from '../room-repository';
 import { generateRoomId, generateToken, hashToken } from '../tokens';
 
@@ -130,6 +132,54 @@ export async function updateConfig(roomId: string, token: string | null, body: u
     requireHost(room, me);
     if (!canTransition(room.phase, 'config')) throw new AppError('WRONG_PHASE');
     await setRoomConfig(tx, roomId, config);
+  });
+  return { ok: true };
+}
+
+export const HOST_TIMEOUT_MS = 30_000;
+
+/**
+ * Marca al participante como conectado. En `lobby`/`result`, si el anfitrión lleva más de 30 s sin
+ * señal, pasa el rol al participante activo que entró primero. Solo reescribe la foto si cambió el rol.
+ */
+export async function heartbeat(
+  roomId: string,
+  token: string | null,
+  now: Date,
+): Promise<{ hostParticipantId: string | null }> {
+  let hostChanged = false;
+  const hostParticipantId = await withRoomTx(
+    roomId,
+    now,
+    async (tx, room) => {
+      const me = await requireParticipant(tx, room, token);
+      await touchParticipant(tx, me.id, now);
+      if (room.phase !== 'lobby' && room.phase !== 'result') return room.hostParticipantId;
+
+      const participants = (await listParticipants(tx, roomId)).map((p) => (p.id === me.id ? { ...p, lastSeenAt: now } : p));
+      const isActive = (lastSeenAt: Date) => now.getTime() - lastSeenAt.getTime() <= HOST_TIMEOUT_MS;
+      const host = participants.find((p) => p.id === room.hostParticipantId);
+      if (host && isActive(host.lastSeenAt)) return room.hostParticipantId;
+
+      const candidate = participants.find((p) => isActive(p.lastSeenAt)); // ya vienen ordenados por joined_at
+      if (!candidate || candidate.id === room.hostParticipantId) return room.hostParticipantId;
+      await setRoomHost(tx, roomId, candidate.id);
+      hostChanged = true;
+      return candidate.id;
+    },
+    { snapshot: false },
+  );
+  if (hostChanged) await transaction((tx) => writePublicSnapshot(tx, roomId));
+  return { hostParticipantId };
+}
+
+export async function replay(roomId: string, token: string | null, now: Date): Promise<{ ok: true }> {
+  await withRoomTx(roomId, now, async (tx, room) => {
+    const me = await requireParticipant(tx, room, token);
+    requireHost(room, me);
+    if (!canTransition(room.phase, 'replay')) throw new AppError('WRONG_PHASE');
+    await setRoomPhase(tx, roomId, 'lobby');
+    await insertEvent(tx, 'replay', roomId);
   });
   return { ok: true };
 }

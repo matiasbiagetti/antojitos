@@ -8,6 +8,7 @@ import { VisibilitySummary } from './VisibilitySummary';
 
 export function LobbyScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
   const [copied, setCopied] = useState(false);
+  const [manualUrl, setManualUrl] = useState<string | null>(null);
   const host = snapshot.participants.find((p) => p.id === snapshot.hostParticipantId);
 
   async function share() {
@@ -16,9 +17,15 @@ export function LobbyScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
       await navigator.share({ title: 'Antojitos', text: '¿Qué se come? Sumate:', url }).catch(() => undefined);
       return;
     }
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (!navigator.clipboard) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(url);
+      setManualUrl(null);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setManualUrl(url);
+    }
   }
 
   return (
@@ -45,6 +52,15 @@ export function LobbyScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
       >
         {copied ? '¡Link copiado!' : 'Compartir link'}
       </button>
+      {manualUrl && (
+        <input
+          readOnly
+          value={manualUrl}
+          aria-label="Link de la sala"
+          onFocus={(e) => e.currentTarget.select()}
+          className="rounded-2xl border-2 border-ink/10 bg-white px-4 py-3 text-sm"
+        />
+      )}
       <VisibilitySummary config={snapshot.config} />
       {isHost ? (
         <HostControls

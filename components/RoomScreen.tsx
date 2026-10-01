@@ -22,22 +22,31 @@ export type PhaseProps = {
 
 function useHostChangeNotice(snapshot: PublicSnapshot | null): string | null {
   const previous = useRef<string | null | undefined>(undefined);
+  const participants = useRef(snapshot?.participants ?? []);
   const [notice, setNotice] = useState<string | null>(null);
   const hostId = snapshot?.hostParticipantId;
+
+  useEffect(() => {
+    participants.current = snapshot?.participants ?? [];
+  });
+
   useEffect(() => {
     if (hostId === undefined) return;
     if (previous.current !== undefined && previous.current !== hostId) {
-      const nickname = snapshot?.participants.find((p) => p.id === hostId)?.nickname;
+      const nickname = participants.current.find((p) => p.id === hostId)?.nickname;
       if (nickname) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- derived from an external realtime snapshot
         setNotice(`Ahora ${nickname} es quien arranca la ronda`);
-        const timer = setTimeout(() => setNotice(null), 4000);
-        previous.current = hostId;
-        return () => clearTimeout(timer);
       }
     }
     previous.current = hostId;
-  }, [hostId, snapshot]);
+  }, [hostId]);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 4000);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
   return notice;
 }
 
@@ -61,14 +70,28 @@ export function RoomScreen({ roomId }: { roomId: string }) {
   const meKey = snapshot ? `${snapshot.round?.number ?? 0}:${snapshot.phase}:${snapshot.hostParticipantId}` : '';
   useEffect(() => {
     if (!session || !meKey) return;
-    getMe(roomId, session.token)
-      .then(setMe)
-      .catch((error) => {
-        if (error instanceof ApiError && error.code === 'INVALID_TOKEN') {
-          clearSession(roomId);
-          setSession(null);
-        }
-      });
+    let cancelled = false;
+    let retry: ReturnType<typeof setTimeout> | undefined;
+    const load = () => {
+      getMe(roomId, session.token)
+        .then((value) => {
+          if (!cancelled) setMe(value);
+        })
+        .catch((error) => {
+          if (cancelled) return;
+          if (error instanceof ApiError && error.code === 'INVALID_TOKEN') {
+            clearSession(roomId);
+            setSession(null);
+            return;
+          }
+          retry = setTimeout(load, 2000);
+        });
+    };
+    load();
+    return () => {
+      cancelled = true;
+      if (retry) clearTimeout(retry);
+    };
   }, [roomId, session, meKey]);
 
   if (session === undefined || room.status === 'loading') return <StatusScreen kind="loading" />;

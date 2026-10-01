@@ -1,5 +1,6 @@
 import postgres from 'postgres';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- postgres.js default type parameter
 export type Db = postgres.Sql<{}>;
 
 function databaseUrl(): string {

@@ -35,8 +35,9 @@ function Breakdown({ result }: { result: PublicResult }) {
               {categoryName(id)}
             </span>
             <span className="font-bold tabular-nums">
-              {score(id) !== undefined && `${score(id)} pts`}
-              {supers(id) ? ` · ${supers(id)} ⭐` : ''}
+              {[score(id) !== undefined ? `${score(id)} pts` : null, supers(id) ? `${supers(id)} ⭐` : null]
+                .filter(Boolean)
+                .join(' · ')}
             </span>
           </li>
         ))}
@@ -48,6 +49,7 @@ function Breakdown({ result }: { result: PublicResult }) {
 export function ResultScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
   const result = snapshot.round?.result;
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const host = snapshot.participants.find((p) => p.id === snapshot.hostParticipantId);
   if (!result) return null;
 
@@ -120,8 +122,15 @@ export function ResultScreen({ roomId, session, snapshot, isHost }: PhaseProps) 
       {isHost ? (
         <button
           type="button"
-          onClick={() => replay(roomId, session.token).catch((err) => setError(messageFor(err)))}
-          className="rounded-2xl bg-primary px-4 py-4 text-xl font-extrabold text-white shadow-md"
+          disabled={pending}
+          onClick={() => {
+            setPending(true);
+            setError(null);
+            replay(roomId, session.token)
+              .catch((err) => setError(messageFor(err)))
+              .finally(() => setPending(false));
+          }}
+          className="rounded-2xl disabled:opacity-60 bg-primary px-4 py-4 text-xl font-extrabold text-white shadow-md"
         >
           Jugar otra ronda
         </button>

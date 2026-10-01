@@ -7,6 +7,7 @@ import { categoryName } from '@/lib/domain/categories';
 import type { PhaseProps } from './RoomScreen';
 
 const COLORS = ['#FF5722', '#FFB300', '#E91E63'];
+const LABEL_COLORS = ['text-white', 'text-ink', 'text-white'];
 const TURNS = 6;
 
 export function RouletteScreen({ snapshot }: PhaseProps) {
@@ -41,7 +42,7 @@ export function RouletteScreen({ snapshot }: PhaseProps) {
           {roulette.segments.map((id, i) => (
             <span
               key={id}
-              className="absolute left-1/2 top-1/2 origin-left whitespace-nowrap text-lg font-black text-white drop-shadow"
+              className={`absolute left-1/2 top-1/2 max-w-24 origin-left truncate text-sm font-extrabold ${LABEL_COLORS[i % LABEL_COLORS.length]}`}
               style={{ transform: `rotate(${(i + 0.5) * segment - 90}deg) translateX(30px)` }}
             >
               {categoryName(id)}
@@ -49,9 +50,9 @@ export function RouletteScreen({ snapshot }: PhaseProps) {
           ))}
         </motion.div>
       </div>
-      <p className={`text-2xl font-black text-primary transition-opacity ${done ? 'opacity-100' : 'opacity-0'}`}>
-        ¡Salió {categoryName(roulette.winner)}!
-      </p>
+      <div className="h-8" aria-live="polite">
+        {done && <p className="text-2xl font-black text-primary">¡Salió {categoryName(roulette.winner)}!</p>}
+      </div>
     </main>
   );
 }

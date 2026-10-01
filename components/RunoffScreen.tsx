@@ -17,6 +17,7 @@ export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
 
   async function choose(categoryId: CategoryId) {
     if (choice) return;
+    setError(null);
     setChoice(categoryId);
     try {
       await sendRunoffVote(roomId, session.token, categoryId);

@@ -120,6 +120,7 @@ Si la categoría con más puntos supera claramente a la segunda, gana directamen
   "dentro del margen" si `puntaje_primera − puntaje_categoría ≤ margen`.
 - "Claramente" significa que ninguna otra categoría está dentro del margen: en ese caso la
   primera gana directo. Si hay al menos una, se va a ballotage (§6.2).
+- Una categoría con 0 puntos nunca es finalista (aunque quede dentro del margen).
 - Ejemplos: 2 personas, 3 / 2 → ballotage; 4 / 2 → victoria directa. 6 personas, 10 / 7 →
   victoria directa; 10 / 8 / 8 → ballotage a tres.
 - Si ninguna categoría recibió puntos, se informa que no hubo antojos y se ofrece repetir la ronda.

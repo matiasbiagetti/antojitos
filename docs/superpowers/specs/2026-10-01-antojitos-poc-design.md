@@ -86,6 +86,8 @@ lib/
     room-repository.ts          # Lectura/escritura de tablas
     public-snapshot.ts          # Construye y escribe room_public
     errors.ts                   # Códigos de error tipados
+  shared/
+    api-types.ts                # Tipos compartidos cliente/servidor (PublicSnapshot, ErrorCode...)
   client/
     supabase-browser.ts         # Cliente anon (solo lee room_public)
     use-room.ts                 # Suscripción a la foto pública
@@ -150,7 +152,8 @@ type RoomConfig = { visibility: VisibilityConfig; roundSeconds: 45 | 60 | 90 }; 
 
 - Suma pesos por categoría. Lo no votado vale 0.
 - Si todas las categorías suman 0 → `{ kind: 'no_cravings' }`.
-- `margin = max(1, 0.2 × topScore)`. Candidatas = categorías con `topScore − score ≤ margin`.
+- `margin = max(1, 0.2 × topScore)`. Candidatas = categorías con puntaje > 0 y
+  `topScore − score ≤ margin`.
 - Una sola candidata → `{ kind: 'winner', categoryId }`.
 - Más de 3 candidatas → se toman por mayor puntaje; si hay empate en el puntaje que define el
   último lugar, se sortea con `rng`.
@@ -206,7 +209,7 @@ Todas las tablas referencian `rooms` con `on delete cascade`.
 |---|---|
 | `rooms` | `id` (texto de 8 caracteres, alfabeto sin caracteres ambiguos), `created_at`, `expires_at` (= `created_at + 1 h`), `phase`, `config` (jsonb), `host_participant_id`, `current_round` |
 | `participants` | `id` (uuid), `room_id`, `nickname`, `nickname_key` (minúsculas, para unicidad), `token_hash`, `joined_at`, `last_seen_at` |
-| `rounds` | `room_id`, `number`, `started_at`, `deadline`, `finalists` (jsonb), `runoff_deadline`, `roulette_ends_at`, `full_result` (jsonb, privado), `winner_category_id` |
+| `rounds` | `room_id`, `number`, `started_at`, `deadline`, `outcome` (jsonb: desenlace de la primera vuelta, incluye finalistas), `runoff_deadline`, `roulette` (jsonb: segmentos y ganadora), `roulette_ends_at`, `full_result` (jsonb, privado, incluye la ganadora) |
 | `votes` | `room_id`, `round_number`, `participant_id`, `category_id`, `value` |
 | `runoff_votes` | `room_id`, `round_number`, `participant_id`, `category_id` |
 | `room_public` | `room_id` (pk), `snapshot` (jsonb), `version` |
@@ -226,7 +229,10 @@ Todas las tablas referencian `rooms` con `on delete cascade`.
 - RLS activado en todas las tablas.
 - Rol `anon`: solo `select` sobre `room_public`. Ningún acceso a las demás.
 - Realtime publicado solo para `room_public`.
-- Los Route Handlers usan la service role key, que nunca llega al cliente.
+- Los Route Handlers se conectan directo a Postgres (`DATABASE_URL`, con el pooler de Supabase
+  en modo transacción en producción). Esa conexión ignora RLS y permite transacciones con
+  bloqueo de fila (`select ... for update` sobre `rooms`), que serializan todos los comandos de
+  una sala. La credencial nunca llega al cliente. El cliente usa solo la anon key.
 
 **Espectadores:** no se guardan como rol. Un participante es espectador de la ronda `n` si
 `joined_at > rounds[n].started_at`.
@@ -362,7 +368,8 @@ queda para cuando exista el arte.
 
 - Respuestas de error con forma `{ error: { code, message } }`. Códigos: `ROOM_NOT_FOUND`,
   `ROOM_EXPIRED`, `ROOM_FULL`, `NICKNAME_TAKEN`, `INVALID_NICKNAME`, `INVALID_TOKEN`, `NOT_HOST`,
-  `WRONG_PHASE`, `NOT_ENOUGH_PLAYERS`, `SUPER_ALREADY_USED`, `ALREADY_VOTED`, `SPECTATOR`.
+  `WRONG_PHASE`, `NOT_ENOUGH_PLAYERS`, `SUPER_ALREADY_USED`, `ALREADY_VOTED`, `SPECTATOR`,
+  `INVALID_INPUT`, `INTERNAL`.
 - El cliente traduce cada código a un texto en español con el tono del producto.
 - `WRONG_PHASE` al votar no se muestra como error: el cliente pasa a la pantalla de la fase actual.
 - Si se corta la conexión de tiempo real: aviso "Reconectando…" y, al volver, se vuelve a pedir la
@@ -397,7 +404,6 @@ queda para cuando exista el arte.
 - Camino feliz: crear sala, unirse 2, votar, victoria directa, resultado.
 - Votos armados para forzar ballotage, y votos armados para forzar salto a ruleta.
 - Recargar a mitad de la votación retoma en la misma tarjeta.
-- Los tests e2e pueden usar un `roundSeconds` corto vía variable de entorno solo en test.
 
 ---
 

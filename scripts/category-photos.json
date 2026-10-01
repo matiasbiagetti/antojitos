@@ -1,0 +1,86 @@
+{
+  "pizza": {
+    "imageUrl": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/pizza-with-sausage-and-mushrooms-a66sGfOnnqQ",
+    "author": "Shourav Sheikh",
+    "source": "unsplash"
+  },
+  "burgers": {
+    "imageUrl": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/burger-with-lettuce-and-tomato-E94j3rMcxlw",
+    "author": "David Foodphototasty",
+    "source": "unsplash"
+  },
+  "sushi": {
+    "imageUrl": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/sushi-rolls-with-salmon-and-avocado-Jz4QMhLvGgw",
+    "author": "Derek Duran",
+    "source": "unsplash"
+  },
+  "pasta": {
+    "imageUrl": "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/pasta-dish-on-black-ceramic-bowl-d9jcPTRD9fo",
+    "author": "Nicholas Grande",
+    "source": "unsplash"
+  },
+  "empanadas": {
+    "imageUrl": "https://images.unsplash.com/photo-1624128082323-beb6b8b508db?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/brown-bread-on-gray-round-plate-kJ6myhO23PI",
+    "author": "Anton",
+    "source": "unsplash"
+  },
+  "grill": {
+    "imageUrl": "https://images.unsplash.com/photo-1508615263227-c5d58c1e5821?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/gray-metal-tong-and-grilled-meat-with-fire-jeiqzOgwwKU",
+    "author": "Paul Hermann",
+    "source": "unsplash"
+  },
+  "milanesa": {
+    "imageUrl": "https://images.unsplash.com/photo-1599921841143-819065a55cc6?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/fried-food-on-white-ceramic-plate-MyfbM2QYF4o",
+    "author": "Mark König",
+    "source": "unsplash"
+  },
+  "middle_eastern": {
+    "imageUrl": "https://images.unsplash.com/photo-1701688596783-231b3764ef67?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/a-plate-of-food-that-includes-rice-meatballs-and-salad-FIZm4yokxo8",
+    "author": "Burak B",
+    "source": "unsplash"
+  },
+  "mexican": {
+    "imageUrl": "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/beef-tacos-with-onion-and-cilantro-z_PfaGzeN9E",
+    "author": "Jeswin Thomas",
+    "source": "unsplash"
+  },
+  "chinese": {
+    "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/stir-fried-noodles-with-vegetables-wEBg_pYtynw",
+    "author": "Orijit Chatterjee",
+    "source": "unsplash"
+  },
+  "peruvian": {
+    "imageUrl": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/vegetable-salad-on-white-plate-on-brown-table-YmC1_EP6TJQ",
+    "author": "Pirata Studio Film",
+    "source": "unsplash"
+  },
+  "chicken": {
+    "imageUrl": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/chicken-on-black-round-plate-BhnZwPW_tIc",
+    "author": "Anshu A",
+    "source": "unsplash"
+  },
+  "sandwiches": {
+    "imageUrl": "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/sandwich-on-white-surface-IZ0LRt1khgM",
+    "author": "Mae Mu",
+    "source": "unsplash"
+  },
+  "veggie": {
+    "imageUrl": "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=1080&q=80",
+    "pageUrl": "https://unsplash.com/photos/a-blue-bowl-filled-with-vegetables-and-a-wooden-spoon-yhc4pSbl01A",
+    "author": "Sonny Mauricio",
+    "source": "unsplash"
+  }
+}

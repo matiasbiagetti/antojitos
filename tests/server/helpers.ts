@@ -1,4 +1,7 @@
+import { CATEGORY_IDS } from '@/lib/domain/categories';
+import type { CategoryId, VoteValue } from '@/lib/domain/types';
 import { createRoom, joinRoom } from '@/lib/server/commands/rooms';
+import { castVote } from '@/lib/server/commands/round';
 import type { PublicSnapshot } from '@/lib/shared/api-types';
 import { sql } from '@/lib/server/db';
 
@@ -34,4 +37,16 @@ export async function countEvents(roomId: string, type: string): Promise<number>
   const [row] = await sql<{ n: number }[]>`
     select count(*)::int as n from events where room_id = ${roomId} and type = ${type}`;
   return row.n;
+}
+
+/** Vota las 14 categorías: las de `choices` con su valor, el resto 'no'. */
+export async function voteAll(
+  roomId: string,
+  token: string,
+  choices: Partial<Record<CategoryId, VoteValue>>,
+  now: Date,
+): Promise<void> {
+  for (const categoryId of CATEGORY_IDS) {
+    await castVote(roomId, token, { categoryId, value: choices[categoryId] ?? 'no' }, now);
+  }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ApiError, sendVote } from '@/lib/client/api';
 import type { CategoryId, VoteValue } from '@/lib/domain/types';
 import { Countdown } from './Countdown';
@@ -17,9 +17,12 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
   const remaining = me.cardOrder.filter((id) => !voted.has(id));
   const current = remaining[0];
 
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   function flash(text: string) {
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
     setNotice(text);
-    setTimeout(() => setNotice(null), 1800);
+    noticeTimer.current = setTimeout(() => setNotice(null), 1800);
   }
 
   async function vote(categoryId: CategoryId, value: VoteValue) {
@@ -28,8 +31,21 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
     try {
       await sendVote(roomId, session.token, { categoryId, value });
     } catch (error) {
-      if (error instanceof ApiError && error.code === 'SUPER_ALREADY_USED') flash('Ya usaste tu súper antojo');
-      // WRONG_PHASE: la ronda ya cerró; la foto pública nos lleva a la pantalla siguiente.
+      const code = error instanceof ApiError ? error.code : null;
+      // WRONG_PHASE: la ronda ya cerro; el snapshot nos lleva a la pantalla siguiente.
+      if (code === 'WRONG_PHASE') return;
+      // Rollback: la tarjeta vuelve a ser la actual.
+      setVoted((prev) => {
+        const next = new Set(prev);
+        next.delete(categoryId);
+        return next;
+      });
+      if (code === 'SUPER_ALREADY_USED') {
+        flash('Ya usaste tu súper antojo');
+      } else {
+        if (value === 'super') setSuperUsed(false);
+        flash('No se pudo enviar tu voto, probá de nuevo');
+      }
     }
   }
 

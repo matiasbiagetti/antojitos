@@ -59,7 +59,10 @@ export function SwipeDeck({
           data-category-id={categoryId}
           drag
           style={{ x, y, rotate }}
-          onDrag={(_, info) => setHint(hintFor(info.offset))}
+          onDrag={(_, info) => {
+            const next = hintFor(info.offset);
+            setHint(next === 'super' && !superAvailable ? null : next);
+          }}
           onDragEnd={(_, info) => {
             setHint(null);
             const value = classifySwipe(info.offset, info.velocity);

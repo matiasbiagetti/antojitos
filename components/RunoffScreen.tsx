@@ -30,12 +30,12 @@ export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 py-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-3 overflow-x-hidden px-4 py-4">
       <header className="flex items-center justify-between">
         <h1 className="text-3xl font-black text-primary">¡Hay empate!</h1>
         {round.runoffDeadline && <Countdown until={round.runoffDeadline} />}
       </header>
-      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
+      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning compact />}
       <p className="text-lg">{choice ? 'Listo, ya votaste.' : 'Elegí una sola. La más votada gana.'}</p>
       <div className="grid gap-3">
         {finalists.map((id) => (
@@ -45,7 +45,7 @@ export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
             onClick={() => void choose(id)}
             disabled={choice !== null}
             aria-pressed={choice === id}
-            className={`relative h-32 overflow-hidden rounded-3xl bg-secondary text-left shadow-md transition ${
+            className={`relative h-[clamp(5rem,18dvh,8rem)] shrink-0 overflow-hidden rounded-3xl bg-secondary text-left shadow-md transition ${
               choice === id ? 'ring-4 ring-primary' : choice ? 'opacity-50' : 'active:scale-[0.98]'
             }`}
           >

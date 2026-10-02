@@ -52,8 +52,9 @@ export function SwipeDeck({
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-6">
-      <div className="relative aspect-[3/4] w-full max-w-sm">
+    <div className="flex min-h-0 flex-1 flex-col items-center gap-3 overflow-x-hidden">
+      <div className="flex min-h-0 w-full flex-1 justify-center">
+        <div className="relative h-full max-w-full aspect-[3/4]">
         <motion.div
           data-testid="card"
           data-category-id={categoryId}
@@ -92,9 +93,10 @@ export function SwipeDeck({
             </span>
           )}
         </motion.div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex shrink-0 items-center gap-6 pb-1">
         <button
           type="button"
           aria-label="Paso"

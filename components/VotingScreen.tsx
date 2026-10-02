@@ -51,15 +51,20 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 py-4">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto flex h-dvh max-w-md flex-col gap-2 overflow-hidden overflow-x-hidden px-4 py-3">
+      <header className="flex items-center justify-between gap-2">
         <Countdown until={round.deadline} />
+        {!isSpectator && current && (
+          <p className="text-sm font-bold text-ink/60">
+            {me.cardOrder.length - remaining.length + 1} de {me.cardOrder.length}
+          </p>
+        )}
         <p className="text-sm font-bold text-ink/70">
           {round.finishedCount} de {round.voterCount} terminaron
         </p>
       </header>
 
-      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
+      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning compact />}
 
       {isSpectator ? (
         <section className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
@@ -69,9 +74,6 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
         </section>
       ) : current ? (
         <>
-          <p className="text-center text-sm font-bold text-ink/60">
-            {me.cardOrder.length - remaining.length + 1} de {me.cardOrder.length}
-          </p>
           <SwipeDeck
             key={current}
             categoryId={current}

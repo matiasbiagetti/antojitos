@@ -51,20 +51,20 @@ export function HostControls({
       <h2 className="font-extrabold">Configuración (solo vos la ves)</h2>
       <ul className="space-y-2">
         <li>
-          <label className="flex items-center gap-3 text-ink/60">
-            <input type="checkbox" checked disabled className="size-5 accent-primary" />
+          <label className="flex min-h-11 items-center gap-3 text-ink/60">
+            <input type="checkbox" checked disabled className="size-6 accent-primary" />
             La categoría ganadora (siempre)
           </label>
         </li>
         {VISIBILITY_LABELS.map(({ key, label }) => (
           <li key={key}>
-            <label className="flex items-center gap-3">
+            <label className="flex min-h-11 items-center gap-3">
               <input
                 type="checkbox"
                 checked={config.visibility[key]}
                 disabled={saving}
                 onChange={(e) => void save({ ...config, visibility: { ...config.visibility, [key]: e.target.checked } })}
-                className="size-5 accent-primary"
+                className="size-6 accent-primary"
               />
               {label}
             </label>

@@ -1,10 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import { animate, motion, useMotionValue, useTransform } from 'motion/react';
 import { useRef, useState } from 'react';
 import { classifySwipe, hintFor } from '@/lib/client/swipe';
-import { categoryImage, categoryName } from '@/lib/domain/categories';
+import { categoryName } from '@/lib/domain/categories';
+import { CategoryPhoto } from './CategoryPhoto';
 import type { CategoryId, VoteValue } from '@/lib/domain/types';
 
 const HINT_LABEL: Record<VoteValue, string> = { yes: 'ME VA', no: 'PASO', super: '¡SÚPER ANTOJO!' };
@@ -29,7 +29,6 @@ export function SwipeDeck({
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-14, 14]);
   const [hint, setHint] = useState<VoteValue | null>(null);
-  const [imageFailed, setImageFailed] = useState(false);
   const busy = useRef(false);
 
   const springBack = () => {
@@ -70,20 +69,15 @@ export function SwipeDeck({
             if (value) void commit(value);
             else springBack();
           }}
-          className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl bg-secondary shadow-xl active:cursor-grabbing"
+          className="absolute inset-0 cursor-grab touch-none select-none overflow-hidden rounded-3xl bg-ink/10 shadow-xl active:cursor-grabbing"
         >
-          {!imageFailed && (
-            <Image
-              src={categoryImage(categoryId)}
-              alt=""
-              fill
-              sizes="(max-width: 448px) 100vw, 384px"
-              draggable={false}
-              priority
-              onError={() => setImageFailed(true)}
-              className="pointer-events-none object-cover"
-            />
-          )}
+          <CategoryPhoto
+            categoryId={categoryId}
+            sizes="(max-width: 448px) 100vw, 384px"
+            draggable={false}
+            priority
+            className="pointer-events-none"
+          />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-5 pt-16">
             <h2 className="text-3xl font-black text-white">{categoryName(categoryId)}</h2>
           </div>

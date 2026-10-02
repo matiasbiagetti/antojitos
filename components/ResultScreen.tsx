@@ -1,13 +1,13 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { replay } from '@/lib/client/api';
 import { messageFor } from '@/lib/client/messages';
-import { categoryImage, categoryName } from '@/lib/domain/categories';
+import { categoryName } from '@/lib/domain/categories';
 import type { CategoryId, PublicResult, ResultPath } from '@/lib/domain/types';
 import type { PhaseProps } from './RoomScreen';
+import { CategoryPhoto } from './CategoryPhoto';
 import { TakeHostBanner } from './TakeHostBanner';
 
 const PATH_TEXT: Record<ResultPath, string> = {
@@ -65,9 +65,9 @@ export function ResultScreen({ roomId, session, snapshot, isHost, canTakeHost }:
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 16 }}
-          className="relative h-72 overflow-hidden rounded-3xl bg-secondary shadow-xl"
+          className="relative h-72 overflow-hidden rounded-3xl bg-ink/10 shadow-xl"
         >
-          <Image src={categoryImage(result.winner)} alt="" fill sizes="448px" priority className="object-cover" />
+          <CategoryPhoto categoryId={result.winner} sizes="448px" priority />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent p-5 pt-20">
             <p className="text-sm font-bold uppercase tracking-wide text-secondary">🎉 ¡Match!</p>
             <h1 className="text-4xl font-black text-white">¡Se come {categoryName(result.winner)}!</h1>

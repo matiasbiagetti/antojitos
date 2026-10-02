@@ -1,11 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { ApiError, sendRunoffVote } from '@/lib/client/api';
 import { messageFor } from '@/lib/client/messages';
 import { categoryImage, categoryName } from '@/lib/domain/categories';
 import type { CategoryId } from '@/lib/domain/types';
+import { usePreloadImages } from '@/lib/client/use-preload-images';
+import { CategoryPhoto } from './CategoryPhoto';
 import { Countdown } from './Countdown';
 import type { PhaseProps } from './RoomScreen';
 import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
@@ -13,6 +14,7 @@ import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
 export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
   const round = snapshot.round!;
   const finalists = round.finalists ?? [];
+  usePreloadImages(finalists.map(categoryImage));
   const [choice, setChoice] = useState<CategoryId | null>(me.myRunoffVote);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,11 +47,11 @@ export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
             onClick={() => void choose(id)}
             disabled={choice !== null}
             aria-pressed={choice === id}
-            className={`relative h-[clamp(5rem,18dvh,8rem)] shrink-0 overflow-hidden rounded-3xl bg-secondary text-left shadow-md transition ${
+            className={`relative h-[clamp(5rem,18dvh,8rem)] shrink-0 overflow-hidden rounded-3xl bg-ink/10 text-left shadow-md transition ${
               choice === id ? 'ring-4 ring-primary' : choice ? 'opacity-50' : 'active:scale-[0.98]'
             }`}
           >
-            <Image src={categoryImage(id)} alt="" fill sizes="448px" className="object-cover" />
+            <CategoryPhoto categoryId={id} sizes="448px" />
             <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-4 text-2xl font-black text-white">
               {categoryName(id)}
             </span>

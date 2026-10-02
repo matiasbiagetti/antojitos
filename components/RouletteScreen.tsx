@@ -3,7 +3,8 @@
 import { motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { msUntil } from '@/lib/client/clock';
-import { categoryName } from '@/lib/domain/categories';
+import { usePreloadImages } from '@/lib/client/use-preload-images';
+import { categoryImage, categoryName } from '@/lib/domain/categories';
 import type { PhaseProps } from './RoomScreen';
 
 const COLORS = ['#FF5722', '#FFB300', '#E91E63'];
@@ -12,6 +13,7 @@ const TURNS = 6;
 
 export function RouletteScreen({ snapshot }: PhaseProps) {
   const roulette = snapshot.round!.roulette!;
+  usePreloadImages([categoryImage(roulette.winner)]);
   const [done, setDone] = useState(false);
   const segment = 360 / roulette.segments.length;
   const winnerIndex = roulette.segments.indexOf(roulette.winner);

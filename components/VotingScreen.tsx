@@ -2,6 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { ApiError, sendVote } from '@/lib/client/api';
+import { usePreloadImages } from '@/lib/client/use-preload-images';
+import { categoryImage } from '@/lib/domain/categories';
 import type { CategoryId, VoteValue } from '@/lib/domain/types';
 import { Countdown } from './Countdown';
 import type { PhaseProps } from './RoomScreen';
@@ -17,6 +19,7 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
   const isSpectator = me.isSpectator || round.spectatorIds.includes(session.participantId);
   const remaining = me.cardOrder.filter((id) => !voted.has(id));
   const current = remaining[0];
+  usePreloadImages(me.cardOrder.map(categoryImage));
 
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

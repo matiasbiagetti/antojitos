@@ -14,7 +14,7 @@ export function usePreloadImages(urls: readonly string[]) {
       return img;
     });
     return () => {
-      images.length = 0;
+      void images;
     };
   }, [key]);
 }

@@ -6,19 +6,25 @@ import { categoryImage } from '@/lib/domain/categories';
 import type { CategoryId } from '@/lib/domain/types';
 
 /** Category photo served as-is (already compressed WebP) with a neutral placeholder until it loads. */
-export function CategoryPhoto({
-  categoryId,
-  sizes,
-  priority,
-  draggable,
-  className = '',
-}: {
+export function CategoryPhoto(props: PhotoProps) {
+  return <PhotoInner key={props.categoryId} {...props} />;
+}
+
+interface PhotoProps {
   categoryId: CategoryId;
   sizes: string;
   priority?: boolean;
   draggable?: boolean;
   className?: string;
-}) {
+}
+
+function PhotoInner({
+  categoryId,
+  sizes,
+  priority,
+  draggable,
+  className = '',
+}: PhotoProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   if (failed) return null;

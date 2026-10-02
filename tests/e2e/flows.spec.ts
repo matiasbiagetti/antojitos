@@ -95,3 +95,18 @@ test('the "who voted what" warning shows before and during voting', async ({ bro
   await expect(guest.getByText(warning)).toBeVisible();
   await expect(host.getByText(warning)).toBeVisible();
 });
+
+test('a guest takes control when the host goes silent', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const [host, guest] = await Promise.all([newPlayer(browser), newPlayer(browser)]);
+  const url = await createRoomAs(host, 'Ana');
+  await joinAs(guest, url, 'Beto');
+  await expect(guest.getByText('Esperando que Ana arranque la ronda…')).toBeVisible();
+
+  await host.context().close(); // sin heartbeats
+
+  await expect(guest.getByText('Ana no responde hace un rato.')).toBeVisible({ timeout: 60_000 });
+  await guest.getByRole('button', { name: 'Tomar el control' }).click();
+  await expect(guest.getByText('Ahora Beto es quien arranca la ronda')).toBeVisible();
+  await expect(guest.getByRole('button', { name: 'Empezar' })).toBeVisible();
+});

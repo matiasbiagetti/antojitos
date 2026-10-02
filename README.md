@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Antojitos
 
-## Getting Started
+> Menos vueltas, más sabor.
 
-First, run the development server:
+Web app efímera para decidir qué se come en grupo: cada uno swipea categorías en privado y la app
+cruza los votos. Producto: [`docs/product-spec.md`](docs/product-spec.md). Diseño técnico:
+[`docs/superpowers/specs/2026-10-01-antojitos-poc-design.md`](docs/superpowers/specs/2026-10-01-antojitos-poc-design.md).
+
+## Requisitos
+
+- Node.js 20 o superior
+- Docker Desktop (para Supabase local)
+
+## Desarrollo local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run db:start          # levanta Supabase local y aplica las migraciones
+npx supabase status       # copiar DB URL, API URL y anon key
+cp .env.example .env.local  # completar con esos valores
+npm run dev               # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tests
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm test                  # dominio y cliente (sin base de datos)
+npm run test:server       # comandos del servidor contra Supabase local
+npm run test:e2e          # flujo multiusuario con Playwright (levanta `npm run dev`)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy (Supabase + Vercel)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crear un proyecto en Supabase y aplicar las migraciones: `npx supabase link --project-ref <ref>`
+   y `npx supabase db push`. Verificar en Database → Extensions que `pg_cron` esté activo.
+2. Importar el repo en Vercel y configurar las variables de entorno:
+   - `DATABASE_URL`: connection string del **pooler en modo transacción** (puerto 6543).
+   - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`: de Project Settings → API.
+3. Métricas: [`docs/metrics.sql`](docs/metrics.sql).

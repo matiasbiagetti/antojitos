@@ -8,6 +8,7 @@ import { messageFor } from '@/lib/client/messages';
 import { categoryImage, categoryName } from '@/lib/domain/categories';
 import type { CategoryId, PublicResult, ResultPath } from '@/lib/domain/types';
 import type { PhaseProps } from './RoomScreen';
+import { TakeHostBanner } from './TakeHostBanner';
 
 const PATH_TEXT: Record<ResultPath, string> = {
   no_cravings: 'Nadie sumó puntos.',
@@ -50,7 +51,7 @@ function Breakdown({ result }: { result: PublicResult }) {
   );
 }
 
-export function ResultScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
+export function ResultScreen({ roomId, session, snapshot, isHost, canTakeHost }: PhaseProps) {
   const result = snapshot.round?.result;
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -138,6 +139,8 @@ export function ResultScreen({ roomId, session, snapshot, isHost }: PhaseProps) 
         >
           Jugar otra ronda
         </button>
+      ) : canTakeHost ? (
+        <TakeHostBanner roomId={roomId} token={session.token} hostNickname={host?.nickname ?? 'El anfitrión'} />
       ) : (
         <p className="text-center text-ink/70">Si quieren otra, {host?.nickname ?? 'el anfitrión'} la arranca.</p>
       )}

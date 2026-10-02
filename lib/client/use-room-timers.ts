@@ -19,12 +19,25 @@ export function dueAt(snapshot: PublicSnapshot): string | null {
   return null;
 }
 
-export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, token: string | null): void {
+export function useRoomTimers(
+  roomId: string,
+  snapshot: PublicSnapshot | null,
+  token: string | null,
+): { canTakeHost: boolean } {
   const [clockVersion, setClockVersion] = useState(0);
+  const [canTakeHost, setCanTakeHost] = useState(false);
 
   useEffect(() => {
     if (!token) return;
-    const beat = () => void heartbeat(roomId, token).catch(() => undefined);
+    let cancelled = false;
+    const beat = () =>
+      void heartbeat(roomId, token)
+        .then((res) => {
+          if (!cancelled) setCanTakeHost(res.canTakeHost);
+        })
+        .catch(() => {
+          if (!cancelled) setCanTakeHost(false);
+        });
     beat();
     const id = setInterval(beat, HEARTBEAT_MS);
     // Al volver a la pestaña el intervalo pudo estar frenado: avisar enseguida.
@@ -34,6 +47,7 @@ export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, t
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('pageshow', beat);
     return () => {
+      cancelled = true;
       clearInterval(id);
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('pageshow', beat);
@@ -61,4 +75,6 @@ export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, t
       clearTimeout(retry);
     };
   }, [roomId, target, clockVersion]);
+
+  return { canTakeHost: token ? canTakeHost : false };
 }

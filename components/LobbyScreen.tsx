@@ -4,9 +4,10 @@ import { useState } from 'react';
 import type { PhaseProps } from './RoomScreen';
 import { HostControls } from './HostControls';
 import { Logo } from './Logo';
+import { TakeHostBanner } from './TakeHostBanner';
 import { VisibilitySummary } from './VisibilitySummary';
 
-export function LobbyScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
+export function LobbyScreen({ roomId, session, snapshot, isHost, canTakeHost }: PhaseProps) {
   const [copied, setCopied] = useState(false);
   const [manualUrl, setManualUrl] = useState<string | null>(null);
   const host = snapshot.participants.find((p) => p.id === snapshot.hostParticipantId);
@@ -69,6 +70,8 @@ export function LobbyScreen({ roomId, session, snapshot, isHost }: PhaseProps) {
           config={snapshot.config}
           participantCount={snapshot.participants.length}
         />
+      ) : canTakeHost ? (
+        <TakeHostBanner roomId={roomId} token={session.token} hostNickname={host?.nickname ?? 'El anfitrión'} />
       ) : (
         <p className="text-center text-ink/70">Esperando que {host?.nickname ?? 'el anfitrión'} arranque la ronda…</p>
       )}

@@ -23,6 +23,7 @@ export type PhaseProps = {
   snapshot: PublicSnapshot;
   me: MeResponse;
   isHost: boolean;
+  canTakeHost: boolean;
 };
 
 function useHostChangeNotice(snapshot: PublicSnapshot | null): string | null {
@@ -68,7 +69,7 @@ export function RoomScreen({ roomId }: { roomId: string }) {
     if (!stored) void markOpened(roomId).catch(() => undefined);
   }, [roomId]);
 
-  useRoomTimers(roomId, snapshot, session?.token ?? null);
+  const { canTakeHost } = useRoomTimers(roomId, snapshot, session?.token ?? null);
   const hostNotice = useHostChangeNotice(snapshot);
 
   // Una pantalla ociosa tiene que pasar sola a "vencida" cuando llega expiresAt.
@@ -143,6 +144,7 @@ export function RoomScreen({ roomId }: { roomId: string }) {
     snapshot,
     me,
     isHost: snapshot.hostParticipantId === session.participantId,
+    canTakeHost,
   };
 
   return (

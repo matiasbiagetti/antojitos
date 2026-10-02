@@ -69,6 +69,9 @@ export const sendRunoffVote = (roomId: string, token: string, categoryId: Catego
 export const closeRoom = (roomId: string) => call<{ ok: true }>('POST', room(roomId, 'close'));
 
 export const heartbeat = (roomId: string, token: string) =>
-  call<{ hostParticipantId: string | null }>('POST', room(roomId, 'heartbeat'), { token });
+  call<{ hostParticipantId: string | null; canTakeHost: boolean }>('POST', room(roomId, 'heartbeat'), { token });
+
+export const takeHost = (roomId: string, token: string) =>
+  call<{ ok: true }>('POST', room(roomId, 'take-host'), { token });
 
 export const replay = (roomId: string, token: string) => call<{ ok: true }>('POST', room(roomId, 'replay'), { token });

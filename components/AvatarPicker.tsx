@@ -56,7 +56,7 @@ export function AvatarPicker({
             </button>
           ))}
         </div>
-        <div key={tab} role="tabpanel" aria-label={category.label} className="grid flex-1 grid-cols-7 content-start gap-1 overflow-y-auto px-2 pb-4">
+        <div key={tab} role="tabpanel" aria-label={category.label} className="grid flex-1 grid-cols-7 content-start gap-1 overflow-y-auto overscroll-contain px-2 pb-4">
           {category.avatars.map((id) => (
             <button
               key={id}

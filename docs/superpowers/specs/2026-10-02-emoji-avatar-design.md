@@ -1,7 +1,7 @@
 # Avatar emoji — Diseño técnico
 
 - **Fecha:** 2026-10-02
-- **Fuente de verdad de producto:** [`docs/product-spec.md`](../../product-spec.md) (§3, §4, §8 y §9
+- **Fuente de verdad de producto:** [`docs/product-spec.md`](../../product-spec.md) (§3, §4 y §8
   actualizados con este cambio). Si algo acá contradice al spec, manda el spec.
 - **Convención de nombres:** identificadores en inglés, textos de interfaz en español rioplatense.
 
@@ -88,15 +88,16 @@ Dos módulos, para que el catálogo completo solo lo carguen el servidor y el se
 ## 5. Datos y servidor
 
 - Migración nueva `supabase/migrations/20261002000000_participant_avatar.sql`:
-  `alter table participants add column avatar_id text not null default '1f600';` seguido de
-  `alter table participants alter column avatar_id drop default;`. El default temporal solo
-  rellena a los participantes de salas ya abiertas (😀); los nuevos siempre envían su avatar.
+  `alter table participants add column avatar_id text not null default '1f600';`. El default
+  se mantiene: rellena a los participantes de salas ya abiertas (😀) y permite que el código sin
+  avatares (ventana de deploy / rollback) siga funcionando; el código nuevo siempre envía un
+  avatar validado.
 - `room-repository.ts`: `Participant` suma `avatarId`; `insertParticipant` recibe y guarda
   `avatarId`; los `select` lo devuelven.
 - `commands/rooms.ts`: crear sala y unirse leen `avatarId` del body. Si `!isAvatarId(avatarId)`
   → `AppError('INVALID_AVATAR')`. La validación ocurre antes de abrir la transacción, junto a la del apodo.
 - `errors.ts` y `api-types.ts`: código `INVALID_AVATAR` → 400.
-- `lib/client/messages.ts`: `INVALID_AVATAR: 'Ese avatar no está disponible. Elegí otro.'`
+- `lib/client/messages.ts`: `INVALID_AVATAR: 'Ese avatar no está disponible. Recargá la página y elegí otro.'`
 - `lib/client/api.ts`: `createRoom(nickname, avatarId)` y `joinRoom(roomId, nickname, avatarId)`.
 
 Lo que ve el cliente:
@@ -110,7 +111,7 @@ Lo que ve el cliente:
 ## 6. Interfaz
 
 **`components/Avatar.tsx`**: `<Avatar id size />` dibuja `next/image` con `src={avatarSrc(id)}`,
-`width`/`height` = `size`, `unoptimized` (como las fotos de categorías), `alt=""` y
+imagen de `0.75 × size` (`width`/`height`) centrada dentro de un círculo de `size`, `unoptimized` (como las fotos de categorías), `alt=""` y
 `draggable={false}`. Circular con fondo `secondary/20`.
 
 **`components/NicknameForm.tsx`**:

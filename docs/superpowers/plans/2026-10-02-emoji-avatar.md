@@ -18,7 +18,7 @@
 - Id del avatar = nombre del archivo `image` del paquete sin `.png` (p. ej. `1f355`).
 - Default al azar entre `['smileys-emotion', 'animals-nature', 'food-drink']`.
 - Los avatares se pueden repetir; no hay chequeo de unicidad.
-- Error de avatar inválido o ausente: código `INVALID_AVATAR`, HTTP 400, mensaje `'Ese avatar no está disponible. Elegí otro.'`.
+- Error de avatar inválido o ausente: código `INVALID_AVATAR`, HTTP 400, mensaje `'Ese avatar no está disponible. Recargá la página y elegí otro.'`.
 - La pantalla inicial no importa `lib/domain/avatars.ts` ni `avatars.json` (solo `avatar-defaults`).
 - Sin cambios en votación, ballotage, ruleta ni en el aviso de "Tomar el control".
 - Fuera de alcance: buscador, tonos de piel, avatares únicos, cambiar avatar después de entrar, fotos propias.
@@ -494,7 +494,7 @@ Expected: FAIL (`INVALID_AVATAR` no existe, avatar no se guarda).
 
 `lib/server/errors.ts`: `INVALID_AVATAR: 400,` debajo de `INVALID_NICKNAME`.
 
-`lib/client/messages.ts`: `INVALID_AVATAR: 'Ese avatar no está disponible. Elegí otro.',` debajo de `INVALID_NICKNAME`.
+`lib/client/messages.ts`: `INVALID_AVATAR: 'Ese avatar no está disponible. Recargá la página y elegí otro.',` debajo de `INVALID_NICKNAME`.
 
 `lib/server/commands/rooms.ts`:
 

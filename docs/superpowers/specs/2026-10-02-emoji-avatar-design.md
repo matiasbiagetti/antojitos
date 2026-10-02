@@ -49,11 +49,14 @@ Filtro sobre `emoji.json` del paquete:
 - Las variantes de tono (`skin_variations`) no se recorren: solo se usa la imagen base.
 - Orden: `sort_order` del paquete.
 
-Id del avatar: `unified` en minúsculas, por ejemplo `1f355` (🍕) o `1f468-200d-1f373` (👨‍🍳).
+Id del avatar: el nombre del archivo `image` del paquete sin `.png` (es el `unified` en minúsculas,
+por ejemplo `1f355` (🍕) o `1f468-200d-1f373` (👨‍🍳)).
 
 Salidas:
 
-- `public/avatars/<id>.png`: copia de `img/apple/64/<unified en minúsculas>.png`.
+- `public/avatars/<id>.png`: copia de `img/apple/64/<image>`.
+- `lib/domain/avatar-defaults.json`: `string[]` con los ids de las categorías por defecto (§4), para
+  que el formulario elija el default sin cargar el catálogo completo.
 - `lib/domain/avatars.json`: `{ "categories": [{ "id": string, "label": string, "icon": string, "avatars": string[] }] }`
   en el orden de categorías del paquete. `id` es el nombre de categoría del paquete en kebab-case
   en inglés (`smileys-emotion`, `people-body`, `animals-nature`, `food-drink`, `travel-places`,
@@ -65,12 +68,22 @@ Salidas:
 
 `lib/domain/avatars.ts` (puro, testeado):
 
+Dos módulos, para que el catálogo completo solo lo carguen el servidor y el selector:
+
+`lib/domain/avatars.ts` (catálogo completo):
+
 - `AVATAR_CATEGORIES`: el contenido de `avatars.json`, tipado.
 - `isAvatarId(value: unknown): value is string`: `true` solo para ids del catálogo.
-- `DEFAULT_AVATAR_CATEGORIES = ['smileys-emotion', 'animals-nature', 'food-drink']`.
-- `randomDefaultAvatar(random: () => number = Math.random): string`: elige uniformemente entre
-  los avatares de esas categorías.
+- `avatarCategoryOf(id: string): string | undefined`.
+
+`lib/domain/avatar-defaults.ts` (liviano, lo usan formulario y pantallas):
+
+- `DEFAULT_AVATAR_CATEGORIES = ['smileys-emotion', 'animals-nature', 'food-drink']` (el script
+  genera `avatar-defaults.json` con los ids de esas categorías).
+- `randomDefaultAvatar(random: () => number = Math.random): string`: elige uniformemente entre ellos.
 - `avatarSrc(id: string): string` → `/avatars/${id}.png`.
+- `avatarChar(id: string): string`: el emoji como texto (`'1f355'` → `'🍕'`), usado como
+  `aria-label` de los botones del selector.
 
 ## 5. Datos y servidor
 
@@ -96,9 +109,9 @@ Lo que ve el cliente:
 
 ## 6. Interfaz
 
-**`components/Avatar.tsx`**: `<Avatar id size />` dibuja `<img src={avatarSrc(id)} width={size}
-height={size} alt="" draggable={false} />` (img plano, sin optimización de Next, como las fotos de
-categorías). Circular con fondo `secondary/20`.
+**`components/Avatar.tsx`**: `<Avatar id size />` dibuja `next/image` con `src={avatarSrc(id)}`,
+`width`/`height` = `size`, `unoptimized` (como las fotos de categorías), `alt=""` y
+`draggable={false}`. Circular con fondo `secondary/20`.
 
 **`components/NicknameForm.tsx`**:
 
@@ -116,7 +129,7 @@ categorías). Circular con fondo `secondary/20`.
 - Fila de pestañas (`role="tablist"`), una por categoría, con su `icon` como imagen y `label` como
   `aria-label`.
 - Grilla de 7 columnas con scroll vertical, solo de la pestaña activa; cada celda es un botón con
-  `<img loading="lazy">` de 40 px. La pestaña inicial es la categoría del avatar actual y este
+  `aria-label={avatarChar(id)}` y la imagen de 40 px con carga diferida (`loading="lazy"`). La pestaña inicial es la categoría del avatar actual y este
   aparece marcado.
 - Tocar un avatar llama `onSelect(id)` y cierra.
 

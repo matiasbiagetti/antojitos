@@ -1,16 +1,17 @@
 export interface LatestWinsSaver<T> {
   /** Queues `value`. Resolves when the drain that covers it finishes; rejects if a send failed. */
   save(value: T): Promise<void>;
-  /** Resolves (never rejects) once nothing is in flight or queued. */
-  idle(): Promise<void>;
+  /** Never rejects. Resolves once nothing is in flight or queued: true if the drain it waited on succeeded (or there was none), false if it failed. */
+  idle(): Promise<boolean>;
   pending(): boolean;
 }
 
 /**
  * Serializes saves: at most one `send` in flight. Saves made meanwhile are coalesced so
  * only the latest value is sent once the current request finishes. If a send fails, the
- * queued value is dropped (the caller is expected to revert to server state) and the
- * saver is ready for new saves.
+ * queued value is dropped on purpose: the UI reverts to the server state and shows the
+ * error, so sending a newer value on top of a failed one would contradict what the user sees.
+ * The saver is then ready for new saves.
  */
 export function createLatestWinsSaver<T>(send: (value: T) => Promise<void>): LatestWinsSaver<T> {
   let queued: { value: T } | null = null;
@@ -36,10 +37,12 @@ export function createLatestWinsSaver<T>(send: (value: T) => Promise<void>): Lat
       return drain;
     },
     idle() {
-      return drain ? drain.then(
-        () => undefined,
-        () => undefined,
-      ) : Promise.resolve();
+      return drain
+        ? drain.then(
+            () => true,
+            () => false,
+          )
+        : Promise.resolve(true);
     },
     pending: () => drain !== null,
   };

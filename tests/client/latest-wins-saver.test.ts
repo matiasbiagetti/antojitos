@@ -85,4 +85,20 @@ describe('createLatestWinsSaver', () => {
     expect(idle).toBe(true);
     expect(sent).toEqual([1, 2]);
   });
+
+  it('idle() reports the outcome of the drain it waited on only', async () => {
+    let fail = true;
+    const saver = createLatestWinsSaver<number>(async () => {
+      if (fail) throw new Error('boom');
+    });
+    const p = saver.save(1);
+    const idleFailed = saver.idle();
+    await expect(p).rejects.toThrow('boom');
+    expect(await idleFailed).toBe(false);
+    // An earlier failure must not affect later waits.
+    expect(await saver.idle()).toBe(true);
+    fail = false;
+    void saver.save(2);
+    expect(await saver.idle()).toBe(true);
+  });
 });

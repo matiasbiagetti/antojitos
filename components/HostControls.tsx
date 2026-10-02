@@ -7,6 +7,13 @@ import { messageFor } from '@/lib/client/messages';
 import { ROUND_SECONDS_OPTIONS, type RoomConfig, type RoundSeconds } from '@/lib/domain/types';
 import { VISIBILITY_LABELS } from './VisibilitySummary';
 
+function sameConfig(a: RoomConfig, b: RoomConfig): boolean {
+  return (
+    a.roundSeconds === b.roundSeconds &&
+    VISIBILITY_LABELS.every(({ key }) => a.visibility[key] === b.visibility[key])
+  );
+}
+
 export function HostControls({
   roomId,
   token,
@@ -23,7 +30,8 @@ export function HostControls({
   // Estado local optimista: los cambios se ven al instante; el servidor se entera en segundo plano.
   const [local, setLocal] = useState(config);
   const snapshotConfig = useRef(config);
-  const saveFailed = useRef(false);
+  // Ultima config confirmada por el servidor (para ignorar ecos realtime viejos).
+  const [lastSent, setLastSent] = useState<RoomConfig | null>(null);
   const [saver] = useState(() =>
     createLatestWinsSaver<RoomConfig>(async (next) => {
       await updateConfig(roomId, token, next);
@@ -34,7 +42,9 @@ export function HostControls({
   const [seenConfig, setSeenConfig] = useState(config);
   if (config !== seenConfig) {
     setSeenConfig(config);
-    if (!saver.pending()) setLocal(config);
+    if (!saver.pending() && (lastSent === null || sameConfig(lastSent, config))) {
+      setLocal(config);
+    }
   }
   useEffect(() => {
     snapshotConfig.current = config;
@@ -43,24 +53,28 @@ export function HostControls({
   function change(next: RoomConfig) {
     setLocal(next);
     setError(null);
-    saveFailed.current = false;
-    saver.save(next).catch((err) => {
-      saveFailed.current = true;
-      setError(messageFor(err));
-      setLocal(snapshotConfig.current);
-    });
+    saver.save(next).then(
+      () => setLastSent(next),
+      (err) => {
+        setError(messageFor(err));
+        setLastSent(null);
+        setLocal(snapshotConfig.current);
+      },
+    );
   }
 
   async function start() {
     setStarting(true);
-    setError(null);
     try {
       // Si hay cambios de configuración en vuelo, esperamos a que terminen para no arrancar con config vieja.
-      await saver.idle();
-      if (saveFailed.current) {
-        setStarting(false);
-        return;
-      }
+      // Si ese guardado falla, change() ya mostró el error y revirtió: no arrancamos.
+      do {
+        if (!(await saver.idle())) {
+          setStarting(false);
+          return;
+        }
+      } while (saver.pending());
+      setError(null);
       await startRound(roomId, token);
     } catch (err) {
       setError(messageFor(err));
@@ -86,6 +100,7 @@ export function HostControls({
               <input
                 type="checkbox"
                 checked={local.visibility[key]}
+                disabled={starting}
                 onChange={(e) => change({ ...local, visibility: { ...local.visibility, [key]: e.target.checked } })}
                 className="size-6 accent-primary"
               />
@@ -98,6 +113,7 @@ export function HostControls({
         <span>Duración de la ronda</span>
         <select
           value={local.roundSeconds}
+          disabled={starting}
           onChange={(e) => change({ ...local, roundSeconds: Number(e.target.value) as RoundSeconds })}
           className="rounded-xl border-2 border-ink/10 bg-white px-3 py-2"
         >

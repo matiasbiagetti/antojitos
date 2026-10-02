@@ -6,6 +6,7 @@ export type ErrorCode =
   | 'ROOM_FULL'
   | 'NICKNAME_TAKEN'
   | 'INVALID_NICKNAME'
+  | 'INVALID_AVATAR'
   | 'INVALID_TOKEN'
   | 'NOT_HOST'
   | 'WRONG_PHASE'
@@ -40,7 +41,7 @@ export type PublicSnapshot = {
   expiresAt: string;
   hostParticipantId: string | null;
   config: RoomConfig;
-  participants: { id: string; nickname: string }[];
+  participants: { id: string; nickname: string; avatarId: string }[];
   round?: PublicRound;
 };
 
@@ -49,6 +50,7 @@ export type SessionResponse = { roomId: string; participantId: string; token: st
 export type MeResponse = {
   participantId: string;
   nickname: string;
+  avatarId: string;
   isHost: boolean;
   roundNumber: number;
   isSpectator: boolean;

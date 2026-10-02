@@ -124,8 +124,8 @@ export function RoomScreen({ roomId }: { roomId: string }) {
         {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
         <NicknameForm
           submitLabel="Entrar"
-          onSubmit={async (nickname) => {
-            const joined = await joinRoom(roomId, nickname);
+          onSubmit={async (nickname, avatarId) => {
+            const joined = await joinRoom(roomId, nickname, avatarId);
             const next = { participantId: joined.participantId, token: joined.token };
             saveSession(roomId, next);
             setSession(next);

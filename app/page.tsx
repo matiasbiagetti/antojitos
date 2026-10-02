@@ -17,8 +17,8 @@ export default function HomePage() {
       </p>
       <NicknameForm
         submitLabel="Crear sala"
-        onSubmit={async (nickname) => {
-          const session = await createRoom(nickname);
+        onSubmit={async (nickname, avatarId) => {
+          const session = await createRoom(nickname, avatarId);
           saveSession(session.roomId, { participantId: session.participantId, token: session.token });
           router.push(`/j/${session.roomId}`);
         }}

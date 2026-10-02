@@ -6,8 +6,8 @@ async function seed() {
   await sql`insert into rooms (id, created_at, expires_at, phase, config, current_round)
             values ('room0001', ${T0}, ${T0}, 'voting', '{}'::jsonb, 1)`;
   const [p] = await sql<{ id: string }[]>`
-    insert into participants (room_id, nickname, nickname_key, token_hash, joined_at, last_seen_at)
-    values ('room0001', 'Ana', 'ana', 'hash-1', ${T0}, ${T0}) returning id`;
+    insert into participants (room_id, nickname, nickname_key, avatar_id, token_hash, joined_at, last_seen_at)
+    values ('room0001', 'Ana', 'ana', '1f600', 'hash-1', ${T0}, ${T0}) returning id`;
   await sql`insert into rounds (room_id, number, started_at, deadline) values ('room0001', 1, ${T0}, ${T0})`;
   await sql`insert into votes (room_id, round_number, participant_id, category_id, value)
             values ('room0001', 1, ${p.id}, 'pizza', 'super')`;

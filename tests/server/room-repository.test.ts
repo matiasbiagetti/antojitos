@@ -48,14 +48,14 @@ describe('room-repository', () => {
 
   it('lists participants by join order', async () => {
     await makeRoom();
-    await insertParticipant(sql, { roomId: 'room0001', nickname: 'B', nicknameKey: 'b', tokenHash: 'h2', now: at(10) });
-    await insertParticipant(sql, { roomId: 'room0001', nickname: 'A', nicknameKey: 'a', tokenHash: 'h1', now: at(5) });
+    await insertParticipant(sql, { roomId: 'room0001', nickname: 'B', nicknameKey: 'b', avatarId: '1f600', tokenHash: 'h2', now: at(10) });
+    await insertParticipant(sql, { roomId: 'room0001', nickname: 'A', nicknameKey: 'a', avatarId: '1f600', tokenHash: 'h1', now: at(5) });
     expect((await listParticipants(sql, 'room0001')).map((p) => p.nickname)).toEqual(['A', 'B']);
   });
 
   it('stores votes and partial round updates', async () => {
     await makeRoom();
-    const p = await insertParticipant(sql, { roomId: 'room0001', nickname: 'A', nicknameKey: 'a', tokenHash: 'h1', now: T0 });
+    const p = await insertParticipant(sql, { roomId: 'room0001', nickname: 'A', nicknameKey: 'a', avatarId: '1f600', tokenHash: 'h1', now: T0 });
     await insertRound(sql, { roomId: 'room0001', number: 1, startedAt: T0, deadline: at(60_000) });
     await insertVote(sql, 'room0001', 1, { participantId: p.id, categoryId: 'pizza', value: 'super' });
     expect(await listVotes(sql, 'room0001', 1)).toEqual([{ participantId: p.id, categoryId: 'pizza', value: 'super' }]);

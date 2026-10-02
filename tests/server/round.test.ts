@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { getMe, joinRoom } from '@/lib/server/commands/rooms';
 import { castRunoffVote, castVote, closeIfDue, startRound } from '@/lib/server/commands/round';
 import { sql } from '@/lib/server/db';
-import { T0, at, countEvents, readSnapshot, resetDb, setupRoom, voteAll } from './helpers';
+import { T0, at, countEvents, readSnapshot, resetDb, setupRoom, voteAll, TEST_AVATAR } from './helpers';
 
 const START = at(1_000);
 const VOTE = at(2_000);
@@ -75,7 +75,7 @@ describe('castVote', () => {
 
   it('late joiners are spectators and cannot vote in the first round', async () => {
     const { roomId } = await startedRoom(2);
-    const late = await joinRoom(roomId, { nickname: 'Late' }, at(5_000));
+    const late = await joinRoom(roomId, { nickname: 'Late', avatarId: TEST_AVATAR }, at(5_000));
     expect((await getMe(roomId, late.token, at(5_000))).isSpectator).toBe(true);
     await expect(castVote(roomId, late.token, { categoryId: 'pizza', value: 'yes' }, VOTE)).rejects.toMatchObject({ code: 'SPECTATOR' });
     expect((await readSnapshot(roomId)).round?.spectatorIds).toEqual([late.participantId]);
@@ -134,7 +134,7 @@ describe('runoff and roulette', () => {
 
   it('a spectator who joins during the runoff can vote and counts toward "everyone voted" (Review Focus 5)', async () => {
     const { roomId, players } = await roomInRunoff();
-    const late = await joinRoom(roomId, { nickname: 'Late' }, at(3_000));
+    const late = await joinRoom(roomId, { nickname: 'Late', avatarId: TEST_AVATAR }, at(3_000));
     await castRunoffVote(roomId, players[0].token, { categoryId: 'pizza' }, at(4_000));
     await castRunoffVote(roomId, players[1].token, { categoryId: 'sushi' }, at(4_000));
     expect((await readSnapshot(roomId)).phase).toBe('runoff');

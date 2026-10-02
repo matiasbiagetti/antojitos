@@ -83,6 +83,7 @@ export type FullResult = {
 
 export type IndividualVotes = {
   nickname: string;
+  avatarId: string;
   votes: { categoryId: CategoryId; value: VoteValue }[];
   runoffChoice: CategoryId | null;
 };

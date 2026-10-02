@@ -30,10 +30,11 @@ async function call<T>(method: 'GET' | 'POST', path: string, opts: { token?: str
 
 const room = (roomId: string, action: string) => `/api/rooms/${encodeURIComponent(roomId)}/${action}`;
 
-export const createRoom = (nickname: string) => call<SessionResponse>('POST', '/api/rooms', { body: { nickname } });
+export const createRoom = (nickname: string, avatarId: string) =>
+  call<SessionResponse>('POST', '/api/rooms', { body: { nickname, avatarId } });
 
-export const joinRoom = (roomId: string, nickname: string) =>
-  call<SessionResponse>('POST', room(roomId, 'join'), { body: { nickname } });
+export const joinRoom = (roomId: string, nickname: string, avatarId: string) =>
+  call<SessionResponse>('POST', room(roomId, 'join'), { body: { nickname, avatarId } });
 
 export const getMe = (roomId: string, token: string) => call<MeResponse>('GET', room(roomId, 'me'), { token });
 

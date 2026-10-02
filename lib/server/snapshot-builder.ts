@@ -24,7 +24,7 @@ export function buildPublicSnapshot(input: {
     expiresAt: room.expiresAt.toISOString(),
     hostParticipantId: room.hostParticipantId,
     config: room.config,
-    participants: participants.map((p) => ({ id: p.id, nickname: p.nickname })),
+    participants: participants.map((p) => ({ id: p.id, nickname: p.nickname, avatarId: p.avatarId })),
   };
   if (!round || room.phase === 'lobby') return snapshot;
 
@@ -54,8 +54,10 @@ export function buildPublicSnapshot(input: {
     // Solo quienes votaron en la ronda (más cualquiera que haya votado en el ballotage), no los espectadores.
     const included = new Set(voters.map((p) => p.id));
     for (const v of round.fullResult.runoffVotes) included.add(v.participantId);
-    const nicknames = Object.fromEntries(participants.filter((p) => included.has(p.id)).map((p) => [p.id, p.nickname]));
-    publicRound.result = toPublicResult(round.fullResult, room.config.visibility, nicknames);
+    const people = Object.fromEntries(
+      participants.filter((p) => included.has(p.id)).map((p) => [p.id, { nickname: p.nickname, avatarId: p.avatarId }]),
+    );
+    publicRound.result = toPublicResult(round.fullResult, room.config.visibility, people);
   }
   snapshot.round = publicRound;
   return snapshot;

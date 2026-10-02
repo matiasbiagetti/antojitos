@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { joinAs, newPlayer } from './helpers';
+import { createRoomAs, joinAs, newPlayer, voteCards } from './helpers';
 
 test('picking an avatar shows it to the other players', async ({ browser }) => {
   const [host, guest] = await Promise.all([newPlayer(browser), newPlayer(browser)]);
@@ -31,5 +31,28 @@ test('picking an avatar shows it to the other players', async ({ browser }) => {
   await host.waitForURL(/\/j\/[a-z0-9]{8}$/);
   await joinAs(guest, host.url(), 'Beto');
   await expect(guest.getByText('Participantes (2/15)')).toBeVisible();
+
+  await expect(guest.locator('li', { hasText: 'Ana' }).locator('img[src="/avatars/1f355.png"]')).toBeVisible();
+
   expect(hydrationErrors).toEqual([]); // Review Focus 2
+});
+
+test('avatars survive a reload and show up in who-voted-what', async ({ browser }) => {
+  const [host, guest] = await Promise.all([newPlayer(browser), newPlayer(browser)]);
+  const url = await createRoomAs(host, 'Ana');
+  await joinAs(guest, url, 'Beto');
+
+  const anaChip = host.locator('li', { hasText: 'Ana' }).locator('img');
+  await expect(anaChip).toHaveAttribute('src', /^\/avatars\//);
+  const anaSrc = await anaChip.getAttribute('src');
+
+  await host.reload(); // Review Focus 5
+  await expect(host.locator('li', { hasText: 'Ana' }).locator('img')).toHaveAttribute('src', anaSrc!);
+
+  await host.getByLabel('Quién votó qué').click();
+  await host.getByRole('button', { name: 'Empezar' }).click();
+  await Promise.all([voteCards(host, { pizza: 'super' }), voteCards(guest, { pizza: 'yes' })]);
+
+  const whoVoted = guest.locator('section', { hasText: 'Quién votó qué' });
+  await expect(whoVoted.locator('li', { hasText: 'Ana' }).locator(`img[src="${anaSrc}"]`)).toBeVisible();
 });

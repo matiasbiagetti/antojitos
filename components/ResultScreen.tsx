@@ -7,6 +7,7 @@ import { messageFor } from '@/lib/client/messages';
 import { categoryName } from '@/lib/domain/categories';
 import type { CategoryId, PublicResult, ResultPath } from '@/lib/domain/types';
 import type { PhaseProps } from './RoomScreen';
+import { Avatar } from './Avatar';
 import { CategoryPhoto } from './CategoryPhoto';
 import { TakeHostBanner } from './TakeHostBanner';
 
@@ -105,7 +106,10 @@ export function ResultScreen({ roomId, session, snapshot, isHost, canTakeHost }:
           <ul className="space-y-3">
             {result.individualVotes.map((person) => (
               <li key={person.nickname}>
-                <p className="font-bold">{person.nickname}</p>
+                <p className="flex items-center gap-2 font-bold">
+                  <Avatar id={person.avatarId} size={32} />
+                  {person.nickname}
+                </p>
                 <p className="text-sm text-ink/80">
                   {person.votes.filter((v) => v.value !== 'no').map((v) => `${VOTE_ICON[v.value]} ${categoryName(v.categoryId)}`).join(' · ') ||
                     'No le fue nada'}

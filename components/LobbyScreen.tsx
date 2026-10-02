@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { PhaseProps } from './RoomScreen';
+import { Avatar } from './Avatar';
 import { HostControls } from './HostControls';
 import { Logo } from './Logo';
 import { TakeHostBanner } from './TakeHostBanner';
@@ -38,7 +39,8 @@ export function LobbyScreen({ roomId, session, snapshot, isHost, canTakeHost }: 
         </h2>
         <ul className="mt-2 flex flex-wrap gap-2">
           {snapshot.participants.map((p) => (
-            <li key={p.id} className="rounded-full bg-secondary/20 px-3 py-1 font-semibold">
+            <li key={p.id} className="flex items-center gap-1.5 rounded-full bg-secondary/20 py-1 pl-1 pr-3 font-semibold">
+              <Avatar id={p.avatarId} size={24} />
               {p.nickname}
               {p.id === snapshot.hostParticipantId && ' 👑'}
               {p.id === session.participantId && ' (vos)'}

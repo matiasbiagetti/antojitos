@@ -12,10 +12,10 @@ export async function withRoomTx<T>(
   roomId: string,
   now: Date,
   fn: (tx: Db, room: Room) => Promise<T>,
-  opts: { snapshot?: boolean } = {},
+  opts: { snapshot?: boolean; lock?: boolean } = {},
 ): Promise<T> {
   return transaction(async (tx) => {
-    const room = await getRoom(tx, roomId, { forUpdate: true });
+    const room = await getRoom(tx, roomId, { forUpdate: opts.lock !== false });
     if (!room) throw new AppError('ROOM_NOT_FOUND');
     if (room.expiresAt.getTime() <= now.getTime()) throw new AppError('ROOM_EXPIRED');
     const value = await fn(tx, room);

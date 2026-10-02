@@ -116,7 +116,7 @@ export async function getMe(roomId: string, token: string | null, now: Date): Pr
         myRunoffVote: runoffVotes.find((v) => v.participantId === me.id)?.categoryId ?? null,
       };
     },
-    { snapshot: false },
+    { snapshot: false, lock: false },
   );
 }
 

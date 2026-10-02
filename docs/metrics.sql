@@ -6,12 +6,14 @@ select
     / nullif(count(distinct room_id) filter (where type = 'room_created'), 0) as completion_rate
 from events;
 
--- Tiempo medio de decisión (segundos), desde inicio de ronda hasta resultado
+-- Tiempo medio de decisión (segundos), desde inicio de ronda hasta resultado.
+-- Nota: durationMs en rondas que pasan por la ruleta no incluye los ~6 s de la animación.
 select avg((data->>'durationMs')::numeric) / 1000 as avg_decision_seconds
 from events
 where type = 'round_resolved';
 
--- Tasa de rebote del link: aperturas sin ingreso
+-- Tasa de rebote del link: aperturas sin ingreso.
+-- Nota: cuenta cada apertura, así que las aperturas repetidas (recargas, volver al link) inflan la tasa.
 select
   1 - count(*) filter (where type = 'participant_joined')::numeric
       / nullif(count(*) filter (where type = 'link_opened'), 0) as bounce_rate

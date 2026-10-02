@@ -36,4 +36,12 @@ npm run test:e2e          # flujo multiusuario con Playwright (levanta `npm run 
 2. Importar el repo en Vercel y configurar las variables de entorno:
    - `DATABASE_URL`: connection string del **pooler en modo transacción** (puerto 6543).
    - `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`: de Project Settings → API.
-3. Métricas: [`docs/metrics.sql`](docs/metrics.sql).
+3. Configurar la región de las Vercel Functions en la misma región que el proyecto de Supabase
+   (Project Settings → Functions → Region); si no, cada voto paga latencia entre regiones y las
+   rondas pueden perderse sus deadlines.
+4. Métricas: [`docs/metrics.sql`](docs/metrics.sql).
+
+## Limitaciones conocidas
+
+- Los snapshots de sala son legibles por cualquiera que tenga la anon key, así que las salas se
+  pueden enumerar. Aceptable para la POC.

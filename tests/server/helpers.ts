@@ -9,6 +9,11 @@ export const T0 = new Date('2026-10-01T20:00:00.000Z');
 export const at = (ms: number) => new Date(T0.getTime() + ms);
 
 export async function resetDb() {
+  // Nunca truncar una base que no sea la local.
+  const host = new URL(process.env.DATABASE_URL ?? '').hostname;
+  if (host !== 'localhost' && host !== '127.0.0.1') {
+    throw new Error(`resetDb() se niega a truncar: DATABASE_URL apunta a "${host}", no a localhost/127.0.0.1`);
+  }
   await sql`truncate rooms, events cascade`;
 }
 

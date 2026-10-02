@@ -1,10 +1,13 @@
 import { CATEGORY_IDS } from './categories';
 import type { FullResult, IndividualVotes, PublicResult, VisibilityConfig } from './types';
 
-function individualVotes(full: FullResult, nicknames: Record<string, string>): IndividualVotes[] {
-  return Object.entries(nicknames)
-    .map(([participantId, nickname]) => ({
+type Person = { nickname: string; avatarId: string };
+
+function individualVotes(full: FullResult, people: Record<string, Person>): IndividualVotes[] {
+  return Object.entries(people)
+    .map(([participantId, { nickname, avatarId }]) => ({
       nickname,
+      avatarId,
       votes: full.votes
         .filter((v) => v.participantId === participantId)
         .map(({ categoryId, value }) => ({ categoryId, value })),
@@ -17,7 +20,7 @@ function individualVotes(full: FullResult, nicknames: Record<string, string>): I
 export function toPublicResult(
   full: FullResult,
   visibility: VisibilityConfig,
-  nicknames: Record<string, string>,
+  people: Record<string, Person>,
 ): PublicResult {
   const out: PublicResult = { winner: full.winner };
   // Sin showSuperCounts el orden no puede depender de los súper: puntaje y, de ahí, orden del catálogo.
@@ -38,6 +41,6 @@ export function toPublicResult(
       runoffCounts: full.runoffCounts ? full.runoffCounts.map((c) => ({ ...c })) : null,
     };
   }
-  if (visibility.showWhoVotedWhat) out.individualVotes = individualVotes(full, nicknames);
+  if (visibility.showWhoVotedWhat) out.individualVotes = individualVotes(full, people);
   return out;
 }

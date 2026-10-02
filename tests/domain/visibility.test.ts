@@ -27,7 +27,10 @@ const full: FullResult = resultFromRunoff(
     { participantId: 'id-beto', categoryId: 'pizza' },
   ],
 );
-const nicknames = { 'id-ana': 'Ana', 'id-beto': 'Beto' };
+const people = {
+  'id-ana': { nickname: 'Ana', avatarId: '1f355' },
+  'id-beto': { nickname: 'Beto', avatarId: '1f600' },
+};
 const allOff: VisibilityConfig = {
   showRanking: false,
   showScores: false,
@@ -38,12 +41,12 @@ const allOff: VisibilityConfig = {
 
 describe('toPublicResult', () => {
   it('with everything off only the winner is visible', () => {
-    expect(toPublicResult(full, allOff, nicknames)).toEqual({ winner: 'pizza' });
+    expect(toPublicResult(full, allOff, people)).toEqual({ winner: 'pizza' });
   });
 
   it('never leaks participant ids or nicknames unless showWhoVotedWhat is on', () => {
     const everythingButWho = { ...allOff, showRanking: true, showScores: true, showSuperCounts: true, showTiebreakPath: true };
-    const json = JSON.stringify(toPublicResult(full, everythingButWho, nicknames));
+    const json = JSON.stringify(toPublicResult(full, everythingButWho, people));
     expect(json).not.toContain('id-ana');
     expect(json).not.toContain('id-beto');
     expect(json).not.toContain('Ana');
@@ -51,20 +54,20 @@ describe('toPublicResult', () => {
   });
 
   it('showRanking adds all 14 categories in ranking order', () => {
-    const out = toPublicResult(full, { ...allOff, showRanking: true }, nicknames);
+    const out = toPublicResult(full, { ...allOff, showRanking: true }, people);
     expect(out.ranking).toHaveLength(14);
     expect(out.ranking?.slice(0, 2).sort()).toEqual(['pizza', 'sushi']);
     expect(out.scores).toBeUndefined();
   });
 
   it('showScores adds scores, showSuperCounts adds super counts', () => {
-    const out = toPublicResult(full, { ...allOff, showScores: true, showSuperCounts: true }, nicknames);
+    const out = toPublicResult(full, { ...allOff, showScores: true, showSuperCounts: true }, people);
     expect(out.scores).toContainEqual({ categoryId: 'pizza', score: 3 });
     expect(out.superCounts).toContainEqual({ categoryId: 'sushi', superCount: 1 });
   });
 
   it('showTiebreakPath adds the path, finalists and runoff counts', () => {
-    const out = toPublicResult(full, { ...allOff, showTiebreakPath: true }, nicknames);
+    const out = toPublicResult(full, { ...allOff, showTiebreakPath: true }, people);
     expect(out.tiebreak).toEqual({
       path: 'runoff',
       finalists: ['pizza', 'sushi'],
@@ -75,11 +78,12 @@ describe('toPublicResult', () => {
     });
   });
 
-  it('showWhoVotedWhat adds individual votes by nickname, including the runoff choice', () => {
-    const out = toPublicResult(full, { ...allOff, showWhoVotedWhat: true }, nicknames);
+  it('showWhoVotedWhat adds individual votes by nickname and avatar, including the runoff choice', () => {
+    const out = toPublicResult(full, { ...allOff, showWhoVotedWhat: true }, people);
     expect(out.individualVotes).toEqual([
       {
         nickname: 'Ana',
+        avatarId: '1f355',
         votes: [
           { categoryId: 'pizza', value: 'super' },
           { categoryId: 'sushi', value: 'yes' },
@@ -88,6 +92,7 @@ describe('toPublicResult', () => {
       },
       {
         nickname: 'Beto',
+        avatarId: '1f600',
         votes: [
           { categoryId: 'sushi', value: 'super' },
           { categoryId: 'pizza', value: 'yes' },

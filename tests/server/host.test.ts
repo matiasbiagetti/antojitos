@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { getMe, heartbeat, joinRoom, replay, takeHost } from '@/lib/server/commands/rooms';
 import { startRound } from '@/lib/server/commands/round';
 import { sql } from '@/lib/server/db';
-import { at, countEvents, readSnapshot, resetDb, setupRoom, voteAll } from './helpers';
+import { at, countEvents, readSnapshot, resetDb, setupRoom, voteAll, TEST_AVATAR } from './helpers';
 
 const version = async (roomId: string) => {
   const [row] = await sql<{ v: number }[]>`select version as v from room_public where room_id = ${roomId}`;
@@ -131,7 +131,7 @@ describe('replay', () => {
 
   it('someone who joined during the previous round votes normally in the next one', async () => {
     const { roomId, players } = await finishedRoom();
-    const late = await joinRoom(roomId, { nickname: 'Late' }, at(2_500));
+    const late = await joinRoom(roomId, { nickname: 'Late', avatarId: TEST_AVATAR }, at(2_500));
     await replay(roomId, players[0].token, at(3_000));
     await startRound(roomId, players[0].token, at(4_000));
     const me = await getMe(roomId, late.token, at(5_000));

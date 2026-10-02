@@ -6,6 +6,7 @@ import type { PublicSnapshot } from '@/lib/shared/api-types';
 import { sql } from '@/lib/server/db';
 
 export const T0 = new Date('2026-10-01T20:00:00.000Z');
+export const TEST_AVATAR = '1f600';
 export const at = (ms: number) => new Date(T0.getTime() + ms);
 
 export async function resetDb() {
@@ -24,10 +25,10 @@ export type Player = { participantId: string; token: string };
  * que entran 1 ms después cada uno, para que el orden de ingreso sea determinístico.
  */
 export async function setupRoom(playerCount: number, now = T0): Promise<{ roomId: string; players: Player[] }> {
-  const host = await createRoom({ nickname: 'Host' }, now);
+  const host = await createRoom({ nickname: 'Host', avatarId: TEST_AVATAR }, now);
   const players: Player[] = [{ participantId: host.participantId, token: host.token }];
   for (let i = 1; i < playerCount; i++) {
-    const p = await joinRoom(host.roomId, { nickname: `P${i}` }, new Date(now.getTime() + i));
+    const p = await joinRoom(host.roomId, { nickname: `P${i}`, avatarId: TEST_AVATAR }, new Date(now.getTime() + i));
     players.push({ participantId: p.participantId, token: p.token });
   }
   return { roomId: host.roomId, players };

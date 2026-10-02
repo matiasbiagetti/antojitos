@@ -21,7 +21,7 @@ export type Room = {
   currentRound: number;
 };
 
-export type Participant = { id: string; roomId: string; nickname: string; joinedAt: Date; lastSeenAt: Date };
+export type Participant = { id: string; roomId: string; nickname: string; avatarId: string; joinedAt: Date; lastSeenAt: Date };
 
 export type RouletteInfo = { segments: CategoryId[]; winner: CategoryId };
 
@@ -59,7 +59,7 @@ type RoomRow = {
   current_round: number;
 };
 
-type ParticipantRow = { id: string; room_id: string; nickname: string; joined_at: Date; last_seen_at: Date };
+type ParticipantRow = { id: string; room_id: string; nickname: string; avatar_id: string; joined_at: Date; last_seen_at: Date };
 
 type RoundRow = {
   room_id: string;
@@ -87,6 +87,7 @@ const toParticipant = (r: ParticipantRow): Participant => ({
   id: r.id,
   roomId: r.room_id,
   nickname: r.nickname,
+  avatarId: r.avatar_id,
   joinedAt: r.joined_at,
   lastSeenAt: r.last_seen_at,
 });
@@ -139,18 +140,18 @@ export async function startRoomRound(db: Db, id: string, roundNumber: number): P
 
 export async function insertParticipant(
   db: Db,
-  p: { roomId: string; nickname: string; nicknameKey: string; tokenHash: string; now: Date },
+  p: { roomId: string; nickname: string; nicknameKey: string; avatarId: string; tokenHash: string; now: Date },
 ): Promise<Participant> {
   const [row] = await db<ParticipantRow[]>`
-    insert into participants (room_id, nickname, nickname_key, token_hash, joined_at, last_seen_at)
-    values (${p.roomId}, ${p.nickname}, ${p.nicknameKey}, ${p.tokenHash}, ${p.now}, ${p.now})
-    returning id, room_id, nickname, joined_at, last_seen_at`;
+    insert into participants (room_id, nickname, nickname_key, avatar_id, token_hash, joined_at, last_seen_at)
+    values (${p.roomId}, ${p.nickname}, ${p.nicknameKey}, ${p.avatarId}, ${p.tokenHash}, ${p.now}, ${p.now})
+    returning id, room_id, nickname, avatar_id, joined_at, last_seen_at`;
   return toParticipant(row);
 }
 
 export async function listParticipants(db: Db, roomId: string): Promise<Participant[]> {
   const rows = await db<ParticipantRow[]>`
-    select id, room_id, nickname, joined_at, last_seen_at from participants
+    select id, room_id, nickname, avatar_id, joined_at, last_seen_at from participants
     where room_id = ${roomId} order by joined_at, id`;
   return rows.map(toParticipant);
 }
@@ -166,7 +167,7 @@ export async function findParticipantByTokenHash(
   tokenHash: string,
 ): Promise<Participant | null> {
   const rows = await db<ParticipantRow[]>`
-    select id, room_id, nickname, joined_at, last_seen_at from participants
+    select id, room_id, nickname, avatar_id, joined_at, last_seen_at from participants
     where room_id = ${roomId} and token_hash = ${tokenHash}`;
   return rows[0] ? toParticipant(rows[0]) : null;
 }

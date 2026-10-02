@@ -1,3 +1,4 @@
+import { isAvatarId } from '@/lib/domain/avatars';
 import { cardOrder } from '@/lib/domain/card-order';
 import { canTransition } from '@/lib/domain/room-machine';
 import { DEFAULT_CONFIG, ROUND_SECONDS_OPTIONS, type RoomConfig, type VisibilityConfig } from '@/lib/domain/types';
@@ -57,10 +58,16 @@ export function parseConfig(raw: unknown): RoomConfig {
   };
 }
 
-const nicknameFrom = (body: unknown) => normalizeNickname((body as { nickname?: unknown } | null)?.nickname);
+/** Valida apodo y avatar antes de abrir cualquier transacción. */
+function identityFrom(body: unknown): { nickname: string; key: string; avatarId: string } {
+  const value = body as { nickname?: unknown; avatarId?: unknown } | null;
+  const { nickname, key } = normalizeNickname(value?.nickname);
+  if (!isAvatarId(value?.avatarId)) throw new AppError('INVALID_AVATAR');
+  return { nickname, key, avatarId: value.avatarId };
+}
 
 export async function createRoom(body: unknown, now: Date): Promise<SessionResponse> {
-  const { nickname, key } = nicknameFrom(body);
+  const { nickname, key, avatarId } = identityFrom(body);
   const roomId = generateRoomId();
   const token = generateToken();
   const participantId = await transaction(async (tx) => {
@@ -73,7 +80,7 @@ export async function createRoom(body: unknown, now: Date): Promise<SessionRespo
       hostParticipantId: null,
       currentRound: 0,
     });
-    const host = await insertParticipant(tx, { roomId, nickname, nicknameKey: key, tokenHash: hashToken(token), now });
+    const host = await insertParticipant(tx, { roomId, nickname, nicknameKey: key, avatarId, tokenHash: hashToken(token), now });
     await setRoomHost(tx, roomId, host.id);
     await insertEvent(tx, 'room_created', roomId);
     await writePublicSnapshot(tx, roomId);
@@ -83,13 +90,13 @@ export async function createRoom(body: unknown, now: Date): Promise<SessionRespo
 }
 
 export async function joinRoom(roomId: string, body: unknown, now: Date): Promise<SessionResponse> {
-  const { nickname, key } = nicknameFrom(body);
+  const { nickname, key, avatarId } = identityFrom(body);
   const token = generateToken();
   const participantId = await withRoomTx(roomId, now, async (tx) => {
     const participants = await listParticipants(tx, roomId);
     if (participants.length >= MAX_PARTICIPANTS) throw new AppError('ROOM_FULL');
     if (await nicknameTaken(tx, roomId, key)) throw new AppError('NICKNAME_TAKEN');
-    const p = await insertParticipant(tx, { roomId, nickname, nicknameKey: key, tokenHash: hashToken(token), now });
+    const p = await insertParticipant(tx, { roomId, nickname, nicknameKey: key, avatarId, tokenHash: hashToken(token), now });
     await insertEvent(tx, 'participant_joined', roomId);
     return p.id;
   });
@@ -108,6 +115,7 @@ export async function getMe(roomId: string, token: string | null, now: Date): Pr
       return {
         participantId: me.id,
         nickname: me.nickname,
+        avatarId: me.avatarId,
         isHost: room.hostParticipantId === me.id,
         roundNumber: room.currentRound,
         isSpectator: round ? isSpectator(me, round) : false,

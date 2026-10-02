@@ -7,6 +7,7 @@ export const ERROR_MESSAGES: Record<ErrorCode | 'NETWORK', string> = {
   ROOM_FULL: 'La sala está llena (15/15).',
   NICKNAME_TAKEN: 'Ese apodo ya lo está usando alguien en la sala. Probá con otro.',
   INVALID_NICKNAME: 'El apodo tiene que tener entre 1 y 20 caracteres.',
+  INVALID_AVATAR: 'Ese avatar no está disponible. Elegí otro.',
   INVALID_TOKEN: 'No te reconocemos en esta sala. Volvé a entrar con tu apodo.',
   NOT_HOST: 'Solo quien arma la sala puede hacer eso.',
   WRONG_PHASE: 'Eso ya no se puede hacer en este momento.',

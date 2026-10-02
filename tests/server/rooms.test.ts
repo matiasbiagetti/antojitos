@@ -1,20 +1,21 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_CONFIG } from '@/lib/domain/types';
 import { createRoom, getMe, joinRoom, recordOpened, updateConfig } from '@/lib/server/commands/rooms';
-import { T0, at, countEvents, readSnapshot, resetDb, setupRoom } from './helpers';
+import { sql } from '@/lib/server/db';
+import { T0, TEST_AVATAR, at, countEvents, readSnapshot, resetDb, setupRoom } from './helpers';
 
 describe('room commands', () => {
   beforeEach(resetDb);
 
   it('creates a room with the creator as host and publishes a snapshot', async () => {
-    const s = await createRoom({ nickname: '  Juli  ' }, T0);
+    const s = await createRoom({ nickname: '  Juli  ', avatarId: '1f355' }, T0);
     expect(s.roomId).toMatch(/^[a-z0-9]{8}$/);
     const snap = await readSnapshot(s.roomId);
     expect(snap).toMatchObject({
       phase: 'lobby',
       hostParticipantId: s.participantId,
       config: DEFAULT_CONFIG,
-      participants: [{ id: s.participantId, nickname: 'Juli' }],
+      participants: [{ id: s.participantId, nickname: 'Juli', avatarId: '1f355' }],
       expiresAt: at(3_600_000).toISOString(),
     });
     expect(await countEvents(s.roomId, 'room_created')).toBe(1);
@@ -28,13 +29,13 @@ describe('room commands', () => {
 
   it('rejects the 16th participant', async () => {
     const { roomId } = await setupRoom(15);
-    await expect(joinRoom(roomId, { nickname: 'Extra' }, T0)).rejects.toMatchObject({ code: 'ROOM_FULL' });
+    await expect(joinRoom(roomId, { nickname: 'Extra', avatarId: TEST_AVATAR }, T0)).rejects.toMatchObject({ code: 'ROOM_FULL' });
   });
 
   describe('nicknames (Review Focus 3)', () => {
     it('rejects duplicates ignoring case and surrounding spaces', async () => {
-      const s = await createRoom({ nickname: 'Juli' }, T0);
-      await expect(joinRoom(s.roomId, { nickname: ' juli ' }, T0)).rejects.toMatchObject({ code: 'NICKNAME_TAKEN' });
+      const s = await createRoom({ nickname: 'Juli', avatarId: TEST_AVATAR }, T0);
+      await expect(joinRoom(s.roomId, { nickname: ' juli ', avatarId: TEST_AVATAR }, T0)).rejects.toMatchObject({ code: 'NICKNAME_TAKEN' });
     });
 
     it.each([[''], ['   '], ['a'.repeat(21)], [42], [null]])('rejects %j', async (nickname) => {
@@ -42,23 +43,23 @@ describe('room commands', () => {
     });
 
     it('accepts 20 emojis (counts code points, not UTF-16 units)', async () => {
-      const s = await createRoom({ nickname: '🍕'.repeat(20) }, T0);
+      const s = await createRoom({ nickname: '🍕'.repeat(20), avatarId: TEST_AVATAR }, T0);
       expect((await readSnapshot(s.roomId)).participants[0].nickname).toBe('🍕'.repeat(20));
     });
 
     it('collapses inner whitespace', async () => {
-      const s = await createRoom({ nickname: 'Juli    P' }, T0);
+      const s = await createRoom({ nickname: 'Juli    P', avatarId: TEST_AVATAR }, T0);
       expect((await readSnapshot(s.roomId)).participants[0].nickname).toBe('Juli P');
     });
   });
 
   it('rejects any action on an expired room', async () => {
-    const s = await createRoom({ nickname: 'Host' }, T0);
-    await expect(joinRoom(s.roomId, { nickname: 'Late' }, at(3_600_000))).rejects.toMatchObject({ code: 'ROOM_EXPIRED' });
+    const s = await createRoom({ nickname: 'Host', avatarId: TEST_AVATAR }, T0);
+    await expect(joinRoom(s.roomId, { nickname: 'Late', avatarId: TEST_AVATAR }, at(3_600_000))).rejects.toMatchObject({ code: 'ROOM_EXPIRED' });
   });
 
   it('rejects unknown rooms', async () => {
-    await expect(joinRoom('nope0000', { nickname: 'A' }, T0)).rejects.toMatchObject({ code: 'ROOM_NOT_FOUND' });
+    await expect(joinRoom('nope0000', { nickname: 'A', avatarId: TEST_AVATAR }, T0)).rejects.toMatchObject({ code: 'ROOM_NOT_FOUND' });
   });
 
   it('getMe returns identity and role; rejects bad tokens', async () => {
@@ -66,6 +67,7 @@ describe('room commands', () => {
     expect(await getMe(roomId, players[0].token, T0)).toEqual({
       participantId: players[0].participantId,
       nickname: 'Host',
+      avatarId: TEST_AVATAR,
       isHost: true,
       roundNumber: 0,
       isSpectator: false,
@@ -107,6 +109,26 @@ describe('room commands', () => {
     ])('rejects invalid config %j', async (bad) => {
       const { roomId, players } = await setupRoom(2);
       await expect(updateConfig(roomId, players[0].token, bad, T0)).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    });
+  });
+
+  describe('avatars (Review Focus 1)', () => {
+    it('stores the guest avatar and allows repeats', async () => {
+      const s = await createRoom({ nickname: 'Ana', avatarId: '1f355' }, T0);
+      await joinRoom(s.roomId, { nickname: 'Beto', avatarId: '1f355' }, T0);
+      expect((await readSnapshot(s.roomId)).participants.map((p) => p.avatarId)).toEqual(['1f355', '1f355']);
+    });
+
+    it.each([[undefined], [''], ['nope'], [42], [null]])('createRoom rejects avatarId %j without creating anything', async (avatarId) => {
+      await expect(createRoom({ nickname: 'Ana', avatarId }, T0)).rejects.toMatchObject({ code: 'INVALID_AVATAR' });
+      const [row] = await sql<{ n: number }[]>`select count(*)::int as n from rooms`;
+      expect(row.n).toBe(0);
+    });
+
+    it('joinRoom rejects a missing avatar without adding the participant', async () => {
+      const s = await createRoom({ nickname: 'Ana', avatarId: TEST_AVATAR }, T0);
+      await expect(joinRoom(s.roomId, { nickname: 'Beto' }, T0)).rejects.toMatchObject({ code: 'INVALID_AVATAR' });
+      expect((await readSnapshot(s.roomId)).participants).toHaveLength(1);
     });
   });
 });

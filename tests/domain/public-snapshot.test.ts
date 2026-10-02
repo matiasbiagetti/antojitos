@@ -19,9 +19,9 @@ const room: Room = {
   currentRound: 1,
 };
 const participants: Participant[] = [
-  { id: 'p1', roomId: 'room0001', nickname: 'Ana', joinedAt: T0, lastSeenAt: T0 },
-  { id: 'p2', roomId: 'room0001', nickname: 'Beto', joinedAt: T0, lastSeenAt: T0 },
-  { id: 'p3', roomId: 'room0001', nickname: 'Caro', joinedAt: at(5_000), lastSeenAt: at(5_000) },
+  { id: 'p1', roomId: 'room0001', nickname: 'Ana', avatarId: '1f355', joinedAt: T0, lastSeenAt: T0 },
+  { id: 'p2', roomId: 'room0001', nickname: 'Beto', avatarId: '1f600', joinedAt: T0, lastSeenAt: T0 },
+  { id: 'p3', roomId: 'room0001', nickname: 'Caro', avatarId: '1f600', joinedAt: at(5_000), lastSeenAt: at(5_000) },
 ];
 const round: Round = {
   roomId: 'room0001',
@@ -48,9 +48,9 @@ describe('buildPublicSnapshot', () => {
       hostParticipantId: 'p1',
       config: DEFAULT_CONFIG,
       participants: [
-        { id: 'p1', nickname: 'Ana' },
-        { id: 'p2', nickname: 'Beto' },
-        { id: 'p3', nickname: 'Caro' },
+        { id: 'p1', nickname: 'Ana', avatarId: '1f355' },
+        { id: 'p2', nickname: 'Beto', avatarId: '1f600' },
+        { id: 'p3', nickname: 'Caro', avatarId: '1f600' },
       ],
     });
   });
@@ -123,5 +123,23 @@ describe('buildPublicSnapshot', () => {
       version: 5,
     });
     expect(snap.round?.roulette).toEqual({ segments: ['pizza', 'sushi'], winner: 'sushi', endsAt: at(70_000).toISOString() });
+  });
+
+  it('who-voted-what carries each voter avatar', () => {
+    const votes = [...allVotesOf('p1'), ...allVotesOf('p2')];
+    const fullResult = resultFromRound({ kind: 'winner', winner: 'pizza', stats: computeStats(votes) }, votes);
+    const config = { ...DEFAULT_CONFIG, visibility: { ...DEFAULT_CONFIG.visibility, showWhoVotedWhat: true } };
+    const snap = buildPublicSnapshot({
+      room: { ...room, phase: 'result', config },
+      participants,
+      round: { ...round, fullResult },
+      votes,
+      runoffVoteCount: 0,
+      version: 9,
+    });
+    expect(snap.round?.result?.individualVotes?.map((v) => [v.nickname, v.avatarId])).toEqual([
+      ['Ana', '1f355'],
+      ['Beto', '1f600'],
+    ]);
   });
 });

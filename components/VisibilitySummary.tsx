@@ -1,4 +1,5 @@
 import type { RoomConfig, VisibilityConfig } from '@/lib/domain/types';
+import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
 
 export const VISIBILITY_LABELS: { key: keyof VisibilityConfig; label: string }[] = [
   { key: 'showRanking', label: 'Ranking completo de categorías' },
@@ -13,11 +14,7 @@ export function VisibilitySummary({ config }: { config: RoomConfig }) {
   return (
     <section className="rounded-3xl bg-white p-4 shadow-sm">
       <h2 className="font-extrabold">Qué se va a mostrar al final</h2>
-      {config.visibility.showWhoVotedWhat && (
-        <p role="alert" className="mt-3 rounded-2xl bg-accent px-3 py-2 font-bold text-white">
-          Ojo: al final todos van a ver quién votó qué.
-        </p>
-      )}
+      {config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning className="mt-3" />}
       <ul className="mt-3 space-y-1 text-sm">
         <li>✅ La categoría ganadora</li>
         {shown.map(({ key, label }) => (

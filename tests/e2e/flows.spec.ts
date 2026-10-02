@@ -75,3 +75,23 @@ test('reloading mid-round resumes on an unvoted card', async ({ browser }) => {
   expect(voted).not.toContain(await card.getAttribute('data-category-id'));
   await expect(host.getByText('4 de 14')).toBeVisible();
 });
+
+test('the "who voted what" warning shows before and during voting', async ({ browser }) => {
+  const [host, guest] = await Promise.all([newPlayer(browser), newPlayer(browser)]);
+  const url = await createRoomAs(host, 'Ana');
+  const warning = 'Ojo: al final todos van a ver quién votó qué.';
+  await host.getByLabel('Quién votó qué').click();
+  await expect(host.getByText(warning)).toBeVisible();
+
+  await guest.goto(url);
+  await expect(guest.getByLabel('Tu apodo')).toBeVisible();
+  await expect(guest.getByText(warning)).toBeVisible();
+  await guest.getByLabel('Tu apodo').fill('Beto');
+  await guest.getByRole('button', { name: 'Entrar' }).click();
+  await expect(guest.getByText(/Participantes/)).toBeVisible();
+
+  await host.getByRole('button', { name: 'Empezar' }).click();
+  await expect(guest.getByTestId('card')).toBeVisible();
+  await expect(guest.getByText(warning)).toBeVisible();
+  await expect(host.getByText(warning)).toBeVisible();
+});

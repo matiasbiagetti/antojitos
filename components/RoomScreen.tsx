@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ApiError, getMe, joinRoom, markOpened } from '@/lib/client/api';
-import { serverNow } from '@/lib/client/clock';
+import { msUntil, serverNow } from '@/lib/client/clock';
 import { clearSession, getSession, saveSession, type Session } from '@/lib/client/session-token';
 import { useRoom } from '@/lib/client/use-room';
 import { useRoomTimers } from '@/lib/client/use-room-timers';
@@ -15,6 +15,7 @@ import { RouletteScreen } from './RouletteScreen';
 import { RunoffScreen } from './RunoffScreen';
 import { StatusScreen } from './StatusScreen';
 import { VotingScreen } from './VotingScreen';
+import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
 
 export type PhaseProps = {
   roomId: string;
@@ -70,6 +71,16 @@ export function RoomScreen({ roomId }: { roomId: string }) {
   useRoomTimers(roomId, snapshot, session?.token ?? null);
   const hostNotice = useHostChangeNotice(snapshot);
 
+  // Una pantalla ociosa tiene que pasar sola a "vencida" cuando llega expiresAt.
+  const expiresAt = snapshot?.expiresAt ?? null;
+  const [, setExpiryTick] = useState(0);
+  useEffect(() => {
+    if (!expiresAt) return;
+    const wait = Math.max(0, msUntil(expiresAt)) + 50;
+    const timer = setTimeout(() => setExpiryTick((v) => v + 1), Math.min(wait, 2_000_000_000));
+    return () => clearTimeout(timer);
+  }, [expiresAt]);
+
   // `me` (orden de tarjetas, votos propios, rol) se refresca al cambiar de ronda o de fase.
   const meKey = snapshot ? `${snapshot.round?.number ?? 0}:${snapshot.phase}:${snapshot.hostParticipantId}` : '';
   useEffect(() => {
@@ -88,6 +99,7 @@ export function RoomScreen({ roomId }: { roomId: string }) {
             setSession(null);
             return;
           }
+          if (error instanceof ApiError && (error.code === 'ROOM_NOT_FOUND' || error.code === 'ROOM_EXPIRED')) return;
           retry = setTimeout(load, 2000);
         });
     };
@@ -108,6 +120,7 @@ export function RoomScreen({ roomId }: { roomId: string }) {
       <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-8 px-4">
         <Logo size="lg" />
         <p className="text-center text-lg">Te invitaron a decidir qué se come. ¿Cómo te llamamos?</p>
+        {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
         <NicknameForm
           submitLabel="Entrar"
           onSubmit={async (nickname) => {

@@ -8,6 +8,7 @@ import { categoryImage, categoryName } from '@/lib/domain/categories';
 import type { CategoryId } from '@/lib/domain/types';
 import { Countdown } from './Countdown';
 import type { PhaseProps } from './RoomScreen';
+import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
 
 export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
   const round = snapshot.round!;
@@ -34,6 +35,7 @@ export function RunoffScreen({ roomId, session, snapshot, me }: PhaseProps) {
         <h1 className="text-3xl font-black text-primary">¡Hay empate!</h1>
         {round.runoffDeadline && <Countdown until={round.runoffDeadline} />}
       </header>
+      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
       <p className="text-lg">{choice ? 'Listo, ya votaste.' : 'Elegí una sola. La más votada gana.'}</p>
       <div className="grid gap-3">
         {finalists.map((id) => (

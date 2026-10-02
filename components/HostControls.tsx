@@ -19,13 +19,17 @@ export function HostControls({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   async function save(next: RoomConfig) {
     setError(null);
+    setSaving(true);
     try {
       await updateConfig(roomId, token, next);
     } catch (err) {
       setError(messageFor(err));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -58,6 +62,7 @@ export function HostControls({
               <input
                 type="checkbox"
                 checked={config.visibility[key]}
+                disabled={saving}
                 onChange={(e) => void save({ ...config, visibility: { ...config.visibility, [key]: e.target.checked } })}
                 className="size-5 accent-primary"
               />
@@ -70,6 +75,7 @@ export function HostControls({
         <span>Duración de la ronda</span>
         <select
           value={config.roundSeconds}
+          disabled={saving}
           onChange={(e) => void save({ ...config, roundSeconds: Number(e.target.value) as RoundSeconds })}
           className="rounded-xl border-2 border-ink/10 bg-white px-3 py-2"
         >
@@ -88,7 +94,7 @@ export function HostControls({
       <button
         type="button"
         onClick={() => void start()}
-        disabled={!canStart || starting}
+        disabled={!canStart || starting || saving}
         className="w-full rounded-2xl bg-primary px-4 py-4 text-xl font-extrabold text-white shadow-md disabled:opacity-50"
       >
         Empezar

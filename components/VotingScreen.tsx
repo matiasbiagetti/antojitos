@@ -6,6 +6,7 @@ import type { CategoryId, VoteValue } from '@/lib/domain/types';
 import { Countdown } from './Countdown';
 import type { PhaseProps } from './RoomScreen';
 import { SwipeDeck } from './SwipeDeck';
+import { WhoVotedWhatWarning } from './WhoVotedWhatWarning';
 
 export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
   const round = snapshot.round!;
@@ -57,6 +58,8 @@ export function VotingScreen({ roomId, session, snapshot, me }: PhaseProps) {
           {round.finishedCount} de {round.voterCount} terminaron
         </p>
       </header>
+
+      {snapshot.config.visibility.showWhoVotedWhat && <WhoVotedWhatWarning />}
 
       {isSpectator ? (
         <section className="flex flex-1 flex-col items-center justify-center gap-3 text-center">

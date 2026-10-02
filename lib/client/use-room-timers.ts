@@ -27,7 +27,17 @@ export function useRoomTimers(roomId: string, snapshot: PublicSnapshot | null, t
     const beat = () => void heartbeat(roomId, token).catch(() => undefined);
     beat();
     const id = setInterval(beat, HEARTBEAT_MS);
-    return () => clearInterval(id);
+    // Al volver a la pestaña el intervalo pudo estar frenado: avisar enseguida.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') beat();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('pageshow', beat);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('pageshow', beat);
+    };
   }, [roomId, token]);
 
   useEffect(() => {

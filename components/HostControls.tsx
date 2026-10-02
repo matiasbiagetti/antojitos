@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { startRound, updateConfig } from '@/lib/client/api';
+import { createLatestWinsSaver } from '@/lib/client/latest-wins-saver';
 import { messageFor } from '@/lib/client/messages';
 import { ROUND_SECONDS_OPTIONS, type RoomConfig, type RoundSeconds } from '@/lib/domain/types';
 import { VISIBILITY_LABELS } from './VisibilitySummary';
@@ -19,24 +20,47 @@ export function HostControls({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  async function save(next: RoomConfig) {
-    setError(null);
-    setSaving(true);
-    try {
+  // Estado local optimista: los cambios se ven al instante; el servidor se entera en segundo plano.
+  const [local, setLocal] = useState(config);
+  const snapshotConfig = useRef(config);
+  const saveFailed = useRef(false);
+  const [saver] = useState(() =>
+    createLatestWinsSaver<RoomConfig>(async (next) => {
       await updateConfig(roomId, token, next);
-    } catch (err) {
+    }),
+  );
+
+  // Solo se sincroniza desde el snapshot cuando no hay cambios pendientes (evita parpadeo con el eco realtime).
+  const [seenConfig, setSeenConfig] = useState(config);
+  if (config !== seenConfig) {
+    setSeenConfig(config);
+    if (!saver.pending()) setLocal(config);
+  }
+  useEffect(() => {
+    snapshotConfig.current = config;
+  }, [config]);
+
+  function change(next: RoomConfig) {
+    setLocal(next);
+    setError(null);
+    saveFailed.current = false;
+    saver.save(next).catch((err) => {
+      saveFailed.current = true;
       setError(messageFor(err));
-    } finally {
-      setSaving(false);
-    }
+      setLocal(snapshotConfig.current);
+    });
   }
 
   async function start() {
     setStarting(true);
     setError(null);
     try {
+      // Si hay cambios de configuración en vuelo, esperamos a que terminen para no arrancar con config vieja.
+      await saver.idle();
+      if (saveFailed.current) {
+        setStarting(false);
+        return;
+      }
       await startRound(roomId, token);
     } catch (err) {
       setError(messageFor(err));
@@ -61,9 +85,8 @@ export function HostControls({
             <label className="flex min-h-11 items-center gap-3">
               <input
                 type="checkbox"
-                checked={config.visibility[key]}
-                disabled={saving}
-                onChange={(e) => void save({ ...config, visibility: { ...config.visibility, [key]: e.target.checked } })}
+                checked={local.visibility[key]}
+                onChange={(e) => change({ ...local, visibility: { ...local.visibility, [key]: e.target.checked } })}
                 className="size-6 accent-primary"
               />
               {label}
@@ -74,9 +97,8 @@ export function HostControls({
       <label className="flex items-center justify-between gap-3">
         <span>Duración de la ronda</span>
         <select
-          value={config.roundSeconds}
-          disabled={saving}
-          onChange={(e) => void save({ ...config, roundSeconds: Number(e.target.value) as RoundSeconds })}
+          value={local.roundSeconds}
+          onChange={(e) => change({ ...local, roundSeconds: Number(e.target.value) as RoundSeconds })}
           className="rounded-xl border-2 border-ink/10 bg-white px-3 py-2"
         >
           {ROUND_SECONDS_OPTIONS.map((s) => (
@@ -94,7 +116,7 @@ export function HostControls({
       <button
         type="button"
         onClick={() => void start()}
-        disabled={!canStart || starting || saving}
+        disabled={!canStart || starting}
         className="w-full rounded-2xl bg-primary px-4 py-4 text-xl font-extrabold text-white shadow-md disabled:opacity-50"
       >
         Empezar

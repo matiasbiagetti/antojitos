@@ -194,10 +194,12 @@ Antes de iniciar la ronda, el anfitrión tilda o destilda qué se mostrará al f
   - **La ronda nunca se corta.** Timer, cierre, cálculo, ballotage y ruleta los maneja el
     servidor, independientemente del anfitrión. Si vuelve, recupera su identidad y sus votos.
   - El rol de anfitrión solo se necesita en la sala de espera (configurar / iniciar) y en la
-    pantalla de resultado ("Jugar otra ronda"). Si en esos momentos el anfitrión lleva **más de
-    30 s desconectado**, el rol pasa automáticamente al participante conectado que entró primero,
-    y todos ven un aviso.
-  - El rol no vuelve automáticamente al anfitrión original si se reconecta.
+    pantalla de resultado ("Jugar otra ronda").
+  - **No hay traspaso automático.** Si en esos momentos el anfitrión lleva **más de 30 s sin
+    señal** (por ejemplo, porque está en WhatsApp compartiendo el link), los demás participantes
+    ven un botón **"Tomar el control"**. El primero que lo toca pasa a ser anfitrión y todos ven
+    un aviso. Si nadie lo toca, el anfitrión original sigue siéndolo al volver.
+  - Una vez tomado el control, el rol no vuelve automáticamente al anfitrión original.
   - El nuevo anfitrión hereda la configuración de visibilidad y puede ajustarla mientras siga en
     la sala de espera (todos la ven antes de votar, §7).
 - Al terminar, opción de **"Jugar otra ronda"** con el mismo grupo.
@@ -262,7 +264,7 @@ Antes de iniciar la ronda, el anfitrión tilda o destilda qué se mostrará al f
     resultado → espera).
   - No se usa Clean / Hexagonal completa a propósito; candidata a evaluarse si el producto crece.
 - **Presencia del anfitrión:** heartbeat de cada cliente (~10 s) guardado en la base; el servidor
-  usa la última señal para decidir el traspaso de rol a los 30 s (§8).
+  usa la última señal para habilitar "Tomar el control" a los 30 s (§8).
 
 ---
 
@@ -297,6 +299,6 @@ con SQL, sin dashboard.
 7. ~~Tamaño mínimo y máximo de grupo.~~ **Decidido:** 2 a 15, anfitrión incluido (ver §8).
 8. ~~Comportamiento ante ingreso tardío y desconexión del anfitrión.~~ **Decidido:** el ingreso
    tardío entra como espectador y vota en el ballotage; si el anfitrión se desconecta, la ronda
-   sigue y el rol se traspasa a los 30 s (ver §8 y §6.3).
+   sigue; a los 30 s sin señal del anfitrión, otro participante puede "Tomar el control" (ver §8 y §6.3).
 9. ~~Confirmación final del stack.~~ **Decidido:** stack de §10 con ajustes de limpieza, timers,
    privacidad y presencia.

@@ -9,6 +9,7 @@ export type ErrorCode =
   | 'INVALID_TOKEN'
   | 'NOT_HOST'
   | 'WRONG_PHASE'
+  | 'HOST_STILL_ACTIVE'
   | 'NOT_ENOUGH_PLAYERS'
   | 'SUPER_ALREADY_USED'
   | 'ALREADY_VOTED'

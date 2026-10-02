@@ -138,37 +138,52 @@ export async function updateConfig(roomId: string, token: string | null, body: u
 
 export const HOST_TIMEOUT_MS = 30_000;
 
+const isActive = (lastSeenAt: Date, now: Date) => now.getTime() - lastSeenAt.getTime() <= HOST_TIMEOUT_MS;
+
 /**
- * Marca al participante como conectado. En `lobby`/`result`, si el anfitrión lleva más de 30 s sin
- * señal, pasa el rol al participante activo que entró primero. Solo reescribe la foto si cambió el rol.
+ * Marca al participante como conectado. No cambia el anfitrión ni toca la foto pública: solo informa
+ * si el caller puede tomar el control (en `lobby`/`result`, el anfitrión lleva más de 30 s sin señal).
  */
 export async function heartbeat(
   roomId: string,
   token: string | null,
   now: Date,
-): Promise<{ hostParticipantId: string | null }> {
-  const hostParticipantId = await withRoomTx(
+): Promise<{ hostParticipantId: string | null; canTakeHost: boolean }> {
+  return withRoomTx(
     roomId,
     now,
     async (tx, room) => {
       const me = await requireParticipant(tx, room, token);
       await touchParticipant(tx, me.id, now);
-      if (room.phase !== 'lobby' && room.phase !== 'result') return room.hostParticipantId;
-
-      const participants = (await listParticipants(tx, roomId)).map((p) => (p.id === me.id ? { ...p, lastSeenAt: now } : p));
-      const isActive = (lastSeenAt: Date) => now.getTime() - lastSeenAt.getTime() <= HOST_TIMEOUT_MS;
-      const host = participants.find((p) => p.id === room.hostParticipantId);
-      if (host && isActive(host.lastSeenAt)) return room.hostParticipantId;
-
-      const candidate = participants.find((p) => isActive(p.lastSeenAt)); // ya vienen ordenados por joined_at
-      if (!candidate || candidate.id === room.hostParticipantId) return room.hostParticipantId;
-      await setRoomHost(tx, roomId, candidate.id);
-      await writePublicSnapshot(tx, roomId);
-      return candidate.id;
+      const hostParticipantId = room.hostParticipantId;
+      if ((room.phase !== 'lobby' && room.phase !== 'result') || me.id === hostParticipantId) {
+        return { hostParticipantId, canTakeHost: false };
+      }
+      const host = (await listParticipants(tx, roomId)).find((p) => p.id === hostParticipantId);
+      return { hostParticipantId, canTakeHost: !host || !isActive(host.lastSeenAt, now) };
     },
     { snapshot: false },
   );
-  return { hostParticipantId };
+}
+
+/** El primero que lo pide cuando el anfitrión lleva más de 30 s sin señal pasa a ser anfitrión. */
+export async function takeHost(roomId: string, token: string | null, now: Date): Promise<{ ok: true }> {
+  await withRoomTx(
+    roomId,
+    now,
+    async (tx, room) => {
+      const me = await requireParticipant(tx, room, token);
+      if (room.phase !== 'lobby' && room.phase !== 'result') throw new AppError('WRONG_PHASE');
+      if (room.hostParticipantId === me.id) return;
+      const host = (await listParticipants(tx, roomId)).find((p) => p.id === room.hostParticipantId);
+      if (host && isActive(host.lastSeenAt, now)) throw new AppError('HOST_STILL_ACTIVE');
+      await touchParticipant(tx, me.id, now);
+      await setRoomHost(tx, roomId, me.id);
+      await writePublicSnapshot(tx, roomId);
+    },
+    { snapshot: false },
+  );
+  return { ok: true };
 }
 
 export async function replay(roomId: string, token: string | null, now: Date): Promise<{ ok: true }> {

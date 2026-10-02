@@ -10,6 +10,7 @@ export const ERROR_MESSAGES: Record<ErrorCode | 'NETWORK', string> = {
   INVALID_TOKEN: 'No te reconocemos en esta sala. Volvé a entrar con tu apodo.',
   NOT_HOST: 'Solo quien arma la sala puede hacer eso.',
   WRONG_PHASE: 'Eso ya no se puede hacer en este momento.',
+  HOST_STILL_ACTIVE: 'Ya volvió quien arma la sala o alguien más tomó el control.',
   NOT_ENOUGH_PLAYERS: 'Hacen falta al menos 2 personas para arrancar.',
   SUPER_ALREADY_USED: 'Ya usaste tu súper antojo.',
   ALREADY_VOTED: 'Ya votaste esa.',

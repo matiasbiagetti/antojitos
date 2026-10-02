@@ -51,7 +51,10 @@ export function buildPublicSnapshot(input: {
     publicRound.roulette = { ...round.roulette, endsAt: round.rouletteEndsAt.toISOString() };
   }
   if (room.phase === 'result' && round.fullResult) {
-    const nicknames = Object.fromEntries(participants.map((p) => [p.id, p.nickname]));
+    // Solo quienes votaron en la ronda (más cualquiera que haya votado en el ballotage), no los espectadores.
+    const included = new Set(voters.map((p) => p.id));
+    for (const v of round.fullResult.runoffVotes) included.add(v.participantId);
+    const nicknames = Object.fromEntries(participants.filter((p) => included.has(p.id)).map((p) => [p.id, p.nickname]));
     publicRound.result = toPublicResult(round.fullResult, room.config.visibility, nicknames);
   }
   snapshot.round = publicRound;

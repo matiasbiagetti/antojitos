@@ -22,11 +22,15 @@ const VOTE_ICON = { super: '⭐', yes: '✓', no: '✗' } as const;
 function Breakdown({ result }: { result: PublicResult }) {
   const rows: CategoryId[] = result.ranking ?? result.scores?.map((s) => s.categoryId) ?? result.superCounts?.map((s) => s.categoryId) ?? [];
   if (rows.length === 0) return null;
+  const firstRound =
+    (result.tiebreak !== undefined && result.tiebreak.path !== 'direct') ||
+    (result.winner !== null && result.ranking?.[0] !== result.winner);
+  const title = result.ranking ? (firstRound ? 'Ranking de la primera vuelta' : 'Ranking') : 'Detalle';
   const score = (id: CategoryId) => result.scores?.find((s) => s.categoryId === id)?.score;
   const supers = (id: CategoryId) => result.superCounts?.find((s) => s.categoryId === id)?.superCount;
   return (
     <section className="rounded-3xl bg-white p-4 shadow-sm">
-      <h2 className="mb-2 font-extrabold">{result.ranking ? 'Ranking' : 'Detalle'}</h2>
+      <h2 className="mb-2 font-extrabold">{title}</h2>
       <ol className="space-y-1">
         {rows.map((id, i) => (
           <li key={id} className="flex items-center justify-between gap-2">

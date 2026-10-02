@@ -84,6 +84,23 @@ describe('buildPublicSnapshot', () => {
     expect(JSON.stringify(snap)).not.toContain('"value"');
   });
 
+  it('who-voted-what lists voters and runoff voters but not spectators who did not vote', () => {
+    const votes = [...allVotesOf('p1'), ...allVotesOf('p2')];
+    const fullResult = resultFromRound({ kind: 'winner', winner: 'pizza', stats: computeStats(votes) }, votes);
+    const config = { ...DEFAULT_CONFIG, visibility: { ...DEFAULT_CONFIG.visibility, showWhoVotedWhat: true } };
+    const build = (runoffVotes: { participantId: string; categoryId: 'pizza' }[]) =>
+      buildPublicSnapshot({
+        room: { ...room, phase: 'result', config },
+        participants,
+        round: { ...round, fullResult: { ...fullResult, runoffVotes } },
+        votes,
+        runoffVoteCount: 0,
+        version: 9,
+      }).round?.result?.individualVotes?.map((v) => v.nickname);
+    expect(build([])).toEqual(['Ana', 'Beto']);
+    expect(build([{ participantId: 'p3', categoryId: 'pizza' }])).toEqual(['Ana', 'Beto', 'Caro']);
+  });
+
   it('in runoff includes finalists, runoff deadline and how many voted', () => {
     const snap = buildPublicSnapshot({
       room: { ...room, phase: 'runoff' },

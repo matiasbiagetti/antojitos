@@ -98,3 +98,28 @@ describe('toPublicResult', () => {
     expect(JSON.stringify(out)).not.toContain('id-ana');
   });
 });
+
+describe('toPublicResult ordering without super counts', () => {
+  it('orders tied scores by catalog order when showSuperCounts is off', async () => {
+    const { CATEGORY_IDS } = await import('@/lib/domain/categories');
+    const early = CATEGORY_IDS[0];
+    const late = CATEGORY_IDS[1];
+    // `late` tiene 1 súper (2 pts), `early` tiene 2 "me va" (2 pts): mismo puntaje, distinto súper.
+    const tiedVotes: Vote[] = [
+      { participantId: 'a', categoryId: late, value: 'super' },
+      { participantId: 'a', categoryId: early, value: 'yes' },
+      { participantId: 'b', categoryId: early, value: 'yes' },
+    ];
+    const tied = resultFromRunoff(
+      { kind: 'runoff', finalists: [early, late], stats: computeStats(tiedVotes) },
+      { kind: 'winner', winner: early, counts: [] },
+      tiedVotes,
+      [],
+    );
+    const off = toPublicResult(tied, { ...allOff, showRanking: true, showScores: true }, {});
+    expect(off.ranking?.slice(0, 2)).toEqual([early, late]);
+    expect(off.scores?.slice(0, 2).map((s) => s.categoryId)).toEqual([early, late]);
+    const on = toPublicResult(tied, { ...allOff, showRanking: true, showSuperCounts: true }, {});
+    expect(on.ranking?.slice(0, 2)).toEqual([late, early]);
+  });
+});

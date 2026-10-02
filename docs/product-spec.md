@@ -29,7 +29,7 @@ Nadie tiene que exponer su opinión frente al grupo.
 
 ### Incluido
 - Crear una sala y compartirla por link.
-- Unirse sin cuenta ni descarga, solo con un apodo.
+- Unirse sin cuenta ni descarga, solo con un apodo y un avatar emoji.
 - Swipe de **categorías de comida** (estilo Rappi / PedidosYa).
 - Votación con tres opciones: **Súper antojo / Sí / No**.
 - Cierre de ronda por timer o cuando todos terminan.
@@ -48,9 +48,9 @@ Nadie tiene que exponer su opinión frente al grupo.
 
 ## 4. Flujo principal
 
-1. **Anfitrión crea la sala.** Elige su apodo y configura la visibilidad de resultados (ver §7).
+1. **Anfitrión crea la sala.** Elige su apodo y su avatar (ver §8) y configura la visibilidad de resultados (ver §7).
 2. **Comparte el link** `antojitos.app/j/[session_id]` (pensado para WhatsApp/Telegram).
-3. **Invitados se unen** ingresando solo un apodo. Todos ven una sala de espera con la lista de
+3. **Invitados se unen** ingresando solo un apodo y un avatar. Todos ven una sala de espera con la lista de
    participantes conectados. Antes de empezar, cada participante ve qué se va a mostrar al final
    (especialmente si estará visible quién votó qué).
 4. **El anfitrión inicia la ronda.** El anfitrión también vota.
@@ -179,8 +179,14 @@ Antes de iniciar la ronda, el anfitrión tilda o destilda qué se mostrará al f
 
 ## 8. Reglas de sesión
 
-- Sin login ni descarga. Cada participante se identifica con un apodo y un token anónimo de
-  sesión en su navegador.
+- Sin login ni descarga. Cada participante se identifica con un apodo, un avatar emoji y un token
+  anónimo de sesión en su navegador.
+- **Avatar:** se elige tocando un emoji de una lista propia (pestañas por categoría, sin
+  teclado del sistema). Viene uno preseleccionado al azar (caritas, animales o comida), se
+  puede cambiar y puede repetirse entre participantes. Se muestra junto al apodo en la sala de
+  espera y en "quién votó qué". Se dibuja con el arte de emojis de Apple (iOS) guardado en el
+  proyecto, igual en todos los dispositivos. **Riesgo aceptado:** ese arte tiene copyright de
+  Apple y no tiene licencia libre; está aislado para poder reemplazarlo por otro set.
 - Si un participante recarga la página, debe poder volver a la sala con su identidad y sus votos.
 - Las salas duran **como máximo 1 hora** desde su creación. Al vencer, la sala se cierra (el link
   muestra que expiró) y sus datos se eliminan.

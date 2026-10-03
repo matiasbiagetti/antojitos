@@ -1,9 +1,9 @@
 {
   "pizza": {
-    "imageUrl": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/pizza-with-sausage-and-mushrooms-a66sGfOnnqQ",
-    "author": "Shourav Sheikh",
-    "source": "unsplash"
+    "imageUrl": "https://www.seriouseats.com/thmb/xiXNRtRcipa1zSjmKO4iGdM0b24=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__images__2017__04__20170411-pizza-oven-testing-roccbox-best-c7f2acbecbb047c0b3b74e1835a77f03.jpg",
+    "pageUrl": "https://www.seriouseats.com/basic-neapolitan-pizza-dough-recipe",
+    "author": "Serious Eats",
+    "source": "web"
   },
   "burgers": {
     "imageUrl": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=1080&q=80",
@@ -12,16 +12,16 @@
     "source": "unsplash"
   },
   "sushi": {
-    "imageUrl": "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/sushi-rolls-with-salmon-and-avocado-Jz4QMhLvGgw",
-    "author": "Derek Duran",
-    "source": "unsplash"
+    "imageUrl": "https://sodelicious.recipes/wp-content/uploads/2018/10/13.07.2018-R-4-lat-50-sushi-Sushi-Party-Platter-720x720.jpg",
+    "pageUrl": "https://sodelicious.recipes/recipe/party-sushi-platter/",
+    "author": "So Delicious",
+    "source": "web"
   },
   "pasta": {
-    "imageUrl": "https://images.unsplash.com/photo-1611270629569-8b357cb88da9?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/pasta-dish-on-black-ceramic-bowl-d9jcPTRD9fo",
-    "author": "Nicholas Grande",
-    "source": "unsplash"
+    "imageUrl": "https://www.recipetineats.com/tachyon/2018/07/Spaghetti-Bolognese.jpg",
+    "pageUrl": "https://www.recipetineats.com/spaghetti-bolognese/",
+    "author": "RecipeTin Eats",
+    "source": "web"
   },
   "empanadas": {
     "imageUrl": "https://images.unsplash.com/photo-1624128082323-beb6b8b508db?w=1080&q=80",
@@ -30,22 +30,22 @@
     "source": "unsplash"
   },
   "grill": {
-    "imageUrl": "https://images.unsplash.com/photo-1508615263227-c5d58c1e5821?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/gray-metal-tong-and-grilled-meat-with-fire-jeiqzOgwwKU",
-    "author": "Paul Hermann",
-    "source": "unsplash"
+    "imageUrl": "https://rapirecetas.com/assets/images/2026/08/asado-argentino_1500x1000.webp",
+    "pageUrl": "https://rapirecetas.com/asado-argentino/",
+    "author": "Rapirecetas",
+    "source": "web"
   },
   "milanesa": {
-    "imageUrl": "https://images.unsplash.com/photo-1599921841143-819065a55cc6?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/fried-food-on-white-ceramic-plate-MyfbM2QYF4o",
-    "author": "Mark König",
-    "source": "unsplash"
+    "imageUrl": "https://www.finedininglovers.es/sites/default/files/recipe_content_images/Milanesa%20a%20la%20Napolitana.jpg",
+    "pageUrl": "https://www.finedininglovers.com/es/recetas/platos-principales/milanesa-a-la-napolitana",
+    "author": "Fine Dining Lovers",
+    "source": "web"
   },
   "middle_eastern": {
-    "imageUrl": "https://images.unsplash.com/photo-1701688596783-231b3764ef67?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/a-plate-of-food-that-includes-rice-meatballs-and-salad-FIZm4yokxo8",
-    "author": "Burak B",
-    "source": "unsplash"
+    "imageUrl": "https://playswellwithbutter.com/wp-content/uploads/2021/03/Hummus-Bowls-15.jpg",
+    "pageUrl": "https://playswellwithbutter.com/hummus-bowls-recipe/",
+    "author": "Plays Well With Butter",
+    "source": "web"
   },
   "mexican": {
     "imageUrl": "https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=1080&q=80",
@@ -54,33 +54,33 @@
     "source": "unsplash"
   },
   "chinese": {
-    "imageUrl": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/stir-fried-noodles-with-vegetables-wEBg_pYtynw",
-    "author": "Orijit Chatterjee",
-    "source": "unsplash"
+    "imageUrl": "https://www.recipetineats.com/tachyon/2019/06/Chow-Mein-Ramen_3.jpg",
+    "pageUrl": "https://www.recipetineats.com/chow-mein/",
+    "author": "RecipeTin Eats",
+    "source": "web"
   },
   "peruvian": {
-    "imageUrl": "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/vegetable-salad-on-white-plate-on-brown-table-YmC1_EP6TJQ",
-    "author": "Pirata Studio Film",
-    "source": "unsplash"
+    "imageUrl": "https://www.saveur.com/uploads/2019/01/24/KHZNIHIIO5TBH6P5H2BWHRPRA4.jpg?auto=webp",
+    "pageUrl": "https://www.saveur.com/peru-street-cart-ceviche-recipe",
+    "author": "Saveur",
+    "source": "web"
   },
   "chicken": {
-    "imageUrl": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/chicken-on-black-round-plate-BhnZwPW_tIc",
-    "author": "Anshu A",
-    "source": "unsplash"
+    "imageUrl": "https://www.recipetineats.com/tachyon/2016/05/Roast-Chicken_6a.jpg",
+    "pageUrl": "https://www.recipetineats.com/roast-chicken/",
+    "author": "RecipeTin Eats",
+    "source": "web"
   },
   "sandwiches": {
-    "imageUrl": "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/sandwich-on-white-surface-IZ0LRt1khgM",
-    "author": "Mae Mu",
-    "source": "unsplash"
+    "imageUrl": "https://www.recipetineats.com/tachyon/2017/01/Steak-Sandwich-9.jpg",
+    "pageUrl": "https://www.recipetineats.com/steak-sandwich/",
+    "author": "RecipeTin Eats",
+    "source": "web"
   },
   "veggie": {
-    "imageUrl": "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/a-blue-bowl-filled-with-vegetables-and-a-wooden-spoon-yhc4pSbl01A",
-    "author": "Sonny Mauricio",
-    "source": "unsplash"
+    "imageUrl": "https://www.eatingbirdfood.com/wp-content/uploads/2022/04/buddha-bowl-hero.jpg",
+    "pageUrl": "https://www.eatingbirdfood.com/buddha-bowl/",
+    "author": "Eating Bird Food",
+    "source": "web"
   }
 }

@@ -6,10 +6,10 @@
     "source": "web"
   },
   "burgers": {
-    "imageUrl": "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=1080&q=80",
-    "pageUrl": "https://unsplash.com/photos/burger-with-lettuce-and-tomato-E94j3rMcxlw",
-    "author": "David Foodphototasty",
-    "source": "unsplash"
+    "imageUrl": "https://www.bairesgourmet.com/dobyt//contenido/noticias/original/1733406632.jpeg",
+    "pageUrl": "https://www.bairesgourmet.com/dobyt/nota-big-pons-las-hamburguesas-artesanales-que-estan-conquistando-buenos-aires-64162",
+    "author": "Big Pons (vía Baires Gourmet)",
+    "source": "web"
   },
   "sushi": {
     "imageUrl": "https://sodelicious.recipes/wp-content/uploads/2018/10/13.07.2018-R-4-lat-50-sushi-Sushi-Party-Platter-720x720.jpg",
@@ -42,9 +42,9 @@
     "source": "web"
   },
   "middle_eastern": {
-    "imageUrl": "https://playswellwithbutter.com/wp-content/uploads/2021/03/Hummus-Bowls-15.jpg",
-    "pageUrl": "https://playswellwithbutter.com/hummus-bowls-recipe/",
-    "author": "Plays Well With Butter",
+    "imageUrl": "https://gimmedelicious.com/wp-content/uploads/2024/03/Chicken-Shawarma-Wraps-3.jpg",
+    "pageUrl": "https://gimmedelicious.com/chicken-shawarma/",
+    "author": "Gimme Delicious",
     "source": "web"
   },
   "mexican": {

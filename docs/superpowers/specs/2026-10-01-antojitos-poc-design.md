@@ -413,6 +413,8 @@ Primera tarea del plan: proponer una foto con licencia libre (Unsplash / Pexels)
 con link y vista previa, para que el usuario apruebe. Recién después se descargan, se convierten
 a WebP (~50 KB, formato vertical para la tarjeta) y se guardan en `public/categories/<id>.webp`.
 
+**Actualización 2026-10-03:** ya no se exige licencia libre; las fotos se eligen por lo apetitosas que se ven (ver `docs/product-spec.md` §5.2 y decisión 6).
+
 ---
 
 ## 12. Métricas (§11 del spec)

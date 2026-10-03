@@ -95,9 +95,9 @@ Nadie tiene que exponer su opinión frente al grupo.
 - Cada tarjeta muestra imagen y nombre. Para la POC se eligen **fotos donde la comida se vea
   apetitosa**, aunque no tengan licencia libre (riesgo de copyright asumido para la POC: antes
   de un uso comercial se reemplazan). Se guardan en el proyecto, optimizadas para mobile, y se
-  registra la fuente de cada una. Las fotos se proponen
-  una por categoría y se aprueban antes de incorporarlas. Cada categoría tiene una única imagen
-  asociada, para poder reemplazarlas luego (por ejemplo, por ilustraciones propias).
+  registra la fuente de cada una. Las fotos se proponen una por categoría y se aprueban antes
+  de incorporarlas. Cada categoría tiene una única imagen asociada, para poder reemplazarlas
+  luego (por ejemplo, por ilustraciones propias).
 
 ### 5.3 Fin de la ronda
 

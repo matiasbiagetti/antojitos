@@ -92,8 +92,10 @@ Nadie tiene que exponer su opinión frente al grupo.
 - Todas las categorías de una ronda deben ser **comidas principales comparables entre sí**.
   Postres y helados no compiten contra pizza o pastas: serán una votación aparte (ver §3).
 - **El orden se aleatoriza por participante** para evitar sesgo de posición.
-- Cada tarjeta muestra imagen y nombre. Para la POC se usan **fotos con licencia libre**
-  (Unsplash / Pexels), guardadas en el proyecto y optimizadas para mobile. Las fotos se proponen
+- Cada tarjeta muestra imagen y nombre. Para la POC se eligen **fotos donde la comida se vea
+  apetitosa**, aunque no tengan licencia libre (riesgo de copyright asumido para la POC: antes
+  de un uso comercial se reemplazan). Se guardan en el proyecto, optimizadas para mobile, y se
+  registra la fuente de cada una. Las fotos se proponen
   una por categoría y se aprueban antes de incorporarlas. Cada categoría tiene una única imagen
   asociada, para poder reemplazarlas luego (por ejemplo, por ilustraciones propias).
 
@@ -300,8 +302,8 @@ con SQL, sin dashboard.
    puntaje y luego sorteo en el servidor (ver §6.2).
 5. ~~Duración del timer de ronda y de ballotage.~~ **Decidido:** ronda 60 s (45 / 60 / 90
    configurable), ballotage 20 s fijos (ver §5.3 y §6.2).
-6. ~~Lista final de categorías e imágenes.~~ **Decidido:** 14 categorías y fotos con licencia
-   libre, aprobadas una por una (ver §5.2).
+6. ~~Lista final de categorías e imágenes.~~ **Decidido:** 14 categorías y fotos elegidas por lo
+   apetitosas que se ven, sin exigir licencia libre, aprobadas una por una (ver §5.2).
 7. ~~Tamaño mínimo y máximo de grupo.~~ **Decidido:** 2 a 15, anfitrión incluido (ver §8).
 8. ~~Comportamiento ante ingreso tardío y desconexión del anfitrión.~~ **Decidido:** el ingreso
    tardío entra como espectador y vota en el ballotage; si el anfitrión se desconecta, la ronda
